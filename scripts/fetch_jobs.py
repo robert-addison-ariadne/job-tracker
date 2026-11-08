@@ -168,8 +168,8 @@ def main():
         seen_keys.add(k)
         fresh[j["id"]] = j
 
-    if not fresh and existing and not (os.environ.get("ADZUNA_APP_ID") or os.environ.get("REED_API_KEY")):
-        print("No API keys set; leaving data/jobs.json unchanged.")
+    if not (os.environ.get("ADZUNA_APP_ID") or os.environ.get("REED_API_KEY")):
+        print("No API keys set; leaving data/jobs.json unchanged. See README > Setup.")
         return
 
     merged = {}
