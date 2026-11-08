@@ -336,7 +336,11 @@ $("importFile").onchange = async (e) => {
   ]);
   config = compile(cfg);
   const manualJobs = (manual.jobs || []).map((j, i) => ({ source: "Manual", id: j.id || "manual-" + i, first_seen: j.posted, ...j }));
+  // Recruiters often post one job several times with slightly different titles; keep the first of each.
+  const seen = new Set();
+  const dupKey = (j) => (j.company || "").toLowerCase().replace(/[^a-z0-9]/g, "") + "|" + (j.title || "").toLowerCase().replace(/\(.*?\)|[^a-z0-9 ]/g, "").trim().split(/\s+/).slice(0, 5).join(" ");
   jobs = [...manualJobs, ...(fetched.jobs || [])]
+    .filter((j) => { const k = dupKey(j); if (j.source !== "Manual" && seen.has(k)) return false; seen.add(k); return true; })
     .filter((j) => !config.blocked.has((j.company || "").toLowerCase()))
     .map((j) => ({ ...j, fit: score(j, config) }));
   $("sector").innerHTML += config.sectors.map((s) => `<option>${esc(s.name)}</option>`).join("");
