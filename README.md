@@ -8,7 +8,7 @@ A personal dashboard for a selective graduate job search. It pulls listings dail
 
 | Piece | What it does |
 |---|---|
-| `config.json` | Your search terms, sectors, values and employer ratings. **Edit this first.** |
+| `config.json` | Your search terms, southern towns searched around, sectors, level, values and employer ratings. |
 | `.github/workflows/fetch-jobs.yml` | Runs every day at 06:30 UTC (or on demand), calls `scripts/fetch_jobs.py`, and commits `data/jobs.json`. |
 | `data/jobs.json` | Listings from the job boards. Generated, so don't edit it by hand. |
 | `data/manual.json` | Roles you find yourself. Add them here. |

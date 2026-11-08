@@ -1,40 +1,81 @@
 {
-  "_readme": "Edit this file to tune the tracker. 'search' drives the daily fetch; 'sectors', 'values' and 'employers' drive the fit score on the dashboard (changes apply on next page load, no refetch needed).",
+  "_readme": "Settings for the job tracker. 'search' controls what is collected each morning. 'sectors', 'level', 'job_type', 'values' and 'employers' control the fit score on the dashboard (changes show on next page load).",
 
   "search": {
     "country": "gb",
-    "location": "London",
-    "distance_miles": 25,
+    "_locations_note": "South of England, covered as circles around these towns (radius in miles).",
+    "locations": [
+      { "name": "London", "distance_miles": 35 },
+      { "name": "Brighton", "distance_miles": 30 },
+      { "name": "Canterbury", "distance_miles": 30 },
+      { "name": "Southampton", "distance_miles": 35 },
+      { "name": "Oxford", "distance_miles": 30 },
+      { "name": "Bristol", "distance_miles": 40 },
+      { "name": "Exeter", "distance_miles": 45 }
+    ],
     "max_days_old": 14,
     "queries": [
-      "sustainability analyst",
-      "climate policy",
-      "data analyst",
-      "policy officer",
-      "impact analyst",
-      "associate consultant"
+      "sustainability",
+      "environmental",
+      "climate",
+      "music",
+      "journalist",
+      "reporter",
+      "editorial assistant",
+      "policy",
+      "public affairs",
+      "research assistant",
+      "town planning",
+      "transport planning",
+      "GIS",
+      "regeneration",
+      "community engagement",
+      "housing policy"
     ],
-    "exclude_title_words": ["senior", "lead", "principal", "head of", "director", "intern", "internship", "apprentice"]
+    "exclude_title_words": ["senior", "lead", "principal", "head of", "director", "chief", "partner", "vp", "vice president"]
   },
 
   "sectors": [
     {
-      "name": "Climate & sustainability",
-      "keywords": ["climate", "sustainab", "net zero", "net-zero", "renewable", "decarbon", "carbon", "esg", "environmental","energy transition", "circular economy", "biodiversity"]
+      "name": "Sustainability",
+      "keywords": ["sustainab*", "climate", "net zero", "net-zero", "renewable*", "decarbon*", "carbon", "esg", "environmental", "energy transition", "circular economy", "biodiversity", "ecology", "conservation", "nature recovery"],
+      "exclude": []
     },
     {
-      "name": "Public sector & policy",
-      "keywords": ["policy", "civil service", "government", "public sector", "council", "think tank", "regulator", "nhs", "local authority"]
+      "name": "Music",
+      "keywords": ["music", "record label", "a&r", "festival", "gig", "gigs", "live music", "audio", "radio", "musician", "artist management", "label services", "songwriter", "publishing royalties"],
+      "exclude": []
     },
     {
-      "name": "Charity & social impact",
-      "keywords": ["charity", "non-profit", "nonprofit", "ngo", "social enterprise", "b corp", "b-corp", "impact", "foundation", "community"]
+      "name": "Journalism & media",
+      "keywords": ["journalis*", "reporter", "editorial", "newsroom", "news", "broadcast", "podcast", "magazine", "sub-editor", "sub editor", "editor", "correspondent", "fact-check"],
+      "exclude": []
     },
     {
-      "name": "Tech & consulting",
-      "keywords": ["consult", "software", "data", "analytics", "technology", "digital", "product", "engineer"]
+      "name": "Policy",
+      "keywords": ["policy", "public affairs", "government", "civil service", "think tank", "parliament", "advocacy", "campaigns", "regulator", "policy officer", "policy adviser", "policy advisor", "policy analyst"],
+      "exclude": ["insurance", "underwrit*", "claims", "policyholder", "privacy policy"]
+    },
+    {
+      "name": "Human geography",
+      "keywords": ["geograph*", "town planning", "urban planning", "spatial planning", "transport plan*", "planning officer", "planning assistant", "planning consultant", "gis", "geospatial", "regeneration", "placemaking", "place-making", "housing policy", "housing strateg*", "housing research", "housing development", "community engagement", "community development", "urban", "rural", "migration", "demograph*", "social research", "research assistant", "census", "international development"],
+      "exclude": []
     }
   ],
+
+  "level": {
+    "_note": "You want entry-level roles where a year's experience helps you stand out. Entry-level signs add points; signs it's too senior take points off.",
+    "entry_signals": ["graduate", "junior", "assistant", "trainee", "entry level", "entry-level", "intern", "internship", "placement", "apprentice", "coordinator", "co-ordinator", "no experience", "some experience", "1 year", "one year", "12 months", "6 months"],
+    "senior_signals": ["extensive experience", "significant experience", "substantial experience", "3+ years", "4+ years", "5+ years", "proven track record", "line management", "manage a team"],
+    "senior_title_words": ["manager", "senior", "lead", "principal"],
+    "too_senior_salary": 40000
+  },
+
+  "job_type": {
+    "_note": "Full time preferred. Part-time roles lose points so only very good matches show up.",
+    "part_time_signals": ["part time", "part-time", "hours per week", "days per week", "days a week"],
+    "part_time_penalty": 2
+  },
 
   "values": [
     {
@@ -47,24 +88,24 @@
       "name": "Fair pay & transparency",
       "weight": 1,
       "positive": ["living wage", "pay gap", "salary band", "transparent pay"],
-      "negative": ["unpaid", "commission only", "commission-only", "competitive salary"]
+      "negative": ["commission only", "commission-only"]
     },
     {
       "name": "Flexibility & wellbeing",
       "weight": 1,
       "positive": ["hybrid", "remote", "flexible working", "4 day week", "four day week", "wellbeing", "mental health"],
-      "negative": ["fast-paced", "work hard play hard", "long hours", "weekend work"]
+      "negative": ["work hard play hard", "long hours", "weekend work"]
     },
     {
       "name": "Diversity & inclusion",
       "weight": 1,
-      "positive": ["disability confident", "inclusive", "inclusion", "diversity", "equal opportunit", "neurodiver"],
+      "positive": ["disability confident", "inclusive", "inclusion", "diversity", "equal opportunit*", "neurodiver*"],
       "negative": []
     }
   ],
 
   "employers": {
-    "_example_employer": { "score": 0, "note": "Add employers you've researched: score -5 (avoid) to +5 (dream employer). Names match case-insensitively against the listing's company." }
+    "_example_employer": { "score": 0, "note": "Add employers you've researched: score -5 (avoid) to +5 (dream employer). Names match the listing's company, ignoring capitals." }
   },
 
   "blocked_employers": []

@@ -42,17 +42,24 @@ def excluded(title, words):
     return any(re.search(r"\b" + re.escape(w.lower()) + r"\b", t) for w in words)
 
 
+def searches(s):
+    """Every (search term, town, radius in miles) combination to run."""
+    locs = s.get("locations") or [{"name": s.get("location", ""), "distance_miles": s.get("distance_miles", 25)}]
+    for loc in locs:
+        for q in s["queries"]:
+            yield q, loc["name"], loc.get("distance_miles", 25)
+
+
 def fetch_adzuna(cfg):
     app_id, app_key = os.environ.get("ADZUNA_APP_ID"), os.environ.get("ADZUNA_APP_KEY")
     if not (app_id and app_key):
         print("Adzuna: no keys, skipping")
         return []
     s, out = cfg["search"], []
-    km = round(s.get("distance_miles", 25) * 1.609)
-    for q in s["queries"]:
+    for q, where, miles in searches(s):
         params = {
             "app_id": app_id, "app_key": app_key, "what": q,
-            "where": s.get("location", ""), "distance": km,
+            "where": where, "distance": round(miles * 1.609),
             "max_days_old": s.get("max_days_old", 14),
             "results_per_page": 50, "content-type": "application/json",
         }
@@ -60,7 +67,7 @@ def fetch_adzuna(cfg):
         try:
             data = get_json(url)
         except Exception as e:  # keep going if one query fails
-            print(f"Adzuna '{q}': {e}", file=sys.stderr)
+            print(f"Adzuna '{q}' near {where}: {e}", file=sys.stderr)
             continue
         for r in data.get("results", []):
             out.append({
@@ -79,7 +86,7 @@ def fetch_adzuna(cfg):
                 "description": clean(r.get("description")),
                 "query": q,
             })
-        print(f"Adzuna '{q}': {len(data.get('results', []))}")
+        print(f"Adzuna '{q}' near {where}: {len(data.get('results', []))}")
         time.sleep(1)
     return out
 
@@ -91,15 +98,15 @@ def fetch_reed(cfg):
         return []
     s, out = cfg["search"], []
     auth = "Basic " + base64.b64encode(f"{key}:".encode()).decode()
-    for q in s["queries"]:
+    for q, where, miles in searches(s):
         params = {
-            "keywords": q, "locationName": s.get("location", ""),
-            "distanceFromLocation": s.get("distance_miles", 25), "resultsToTake": 100,
+            "keywords": q, "locationName": where,
+            "distanceFromLocation": miles, "resultsToTake": 100,
         }
         try:
             data = get_json("https://www.reed.co.uk/api/1.0/search?" + urllib.parse.urlencode(params), {"Authorization": auth})
         except Exception as e:
-            print(f"Reed '{q}': {e}", file=sys.stderr)
+            print(f"Reed '{q}' near {where}: {e}", file=sys.stderr)
             continue
         cutoff = date.today() - timedelta(days=s.get("max_days_old", 14))
         n = 0
@@ -128,8 +135,8 @@ def fetch_reed(cfg):
                 "description": clean(r.get("jobDescription")),
                 "query": q,
             })
-        print(f"Reed '{q}': {n}")
-        time.sleep(1)
+        print(f"Reed '{q}' near {where}: {n}")
+        time.sleep(0.5)
     return out
 
 
