@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Tracker</title>
+<style>
+  :root {
+    --bg: #f7f7f4; --surface: #ffffff; --text: #1c1c1a; --muted: #67675f; --line: #deded7;
+    --accent: #1f6f5c; --accent-soft: #e2f1ec; --accent-text: #ffffff;
+    --good: #1f7a4d; --good-soft: #e3f3ea; --warn: #9a6a00; --warn-soft: #fbf1d9;
+    --bad: #b3362b; --bad-soft: #fbe7e4; --chip: #efefea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141513; --surface: #1d1e1c; --text: #ebebe6; --muted: #9c9c94; --line: #33342f;
+      --accent: #5cc3a6; --accent-soft: #1d3530; --accent-text: #0d1311;
+      --good: #6fd09b; --good-soft: #1c3226; --warn: #e3b552; --warn-soft: #3a3020;
+      --bad: #f08a7e; --bad-soft: #3d2320; --chip: #2a2b28;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141513; --surface: #1d1e1c; --text: #ebebe6; --muted: #9c9c94; --line: #33342f;
+    --accent: #5cc3a6; --accent-soft: #1d3530; --accent-text: #0d1311;
+    --good: #6fd09b; --good-soft: #1c3226; --warn: #e3b552; --warn-soft: #3a3020;
+    --bad: #f08a7e; --bad-soft: #3d2320; --chip: #2a2b28;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 28px 16px 64px; }
+  header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px; margin-bottom: 20px; }
+  h1 { font-size: 1.75rem; margin: 0; letter-spacing: -0.01em; }
+  .muted { color: var(--muted); }
+  .small { font-size: .85rem; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .kpi b { display: block; font-size: 1.6rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .kpi span { color: var(--muted); font-size: .82rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+  .filters label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: .85rem; }
+  input, select, textarea, button { font: inherit; color: var(--text); }
+  input[type=search], select, textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+  input[type=search] { flex: 1 1 200px; min-width: 0; }
+  button { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .list { display: grid; gap: 10px; }
+  .job { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; grid-template-columns: 64px 1fr; gap: 14px; }
+  .job.pass, .job.rejected { opacity: .55; }
+  .fit { border-radius: 10px; text-align: center; padding: 8px 0; align-self: start; }
+  .fit b { display: block; font-size: 1.4rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .fit span { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; }
+  .fit.strong { background: var(--good-soft); color: var(--good); }
+  .fit.good { background: var(--accent-soft); color: var(--accent); }
+  .fit.weak { background: var(--warn-soft); color: var(--warn); }
+  .fit.poor { background: var(--bad-soft); color: var(--bad); }
+  .job h2 { font-size: 1.05rem; margin: 0; }
+  .job h2 a { color: inherit; text-decoration: none; }
+  .job h2 a:hover { text-decoration: underline; }
+  .meta { color: var(--muted); font-size: .87rem; margin: 2px 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 1px 9px; font-size: .78rem; }
+  .chip.sector { background: var(--accent-soft); color: var(--accent); }
+  .chip.pos { background: var(--good-soft); color: var(--good); }
+  .chip.neg { background: var(--bad-soft); color: var(--bad); }
+  .chip.new { background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+  .desc { font-size: .88rem; color: var(--muted); margin: 0 0 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .desc.open { -webkit-line-clamp: unset; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .actions textarea { flex: 1 1 260px; min-height: 34px; height: 34px; resize: vertical; font-size: .87rem; }
+  .empty { text-align: center; padding: 40px 16px; background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; }
+  details.help { margin-top: 28px; }
+  details.help summary { cursor: pointer; color: var(--muted); }
+  code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+  @media (max-width: 560px) {
+    .job { grid-template-columns: 1fr; gap: 8px; }
+    .fit { display: flex; gap: 8px; align-items: baseline; justify-content: flex-start; padding: 4px 10px; width: max-content; }
+    .fit b { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Job Tracker</h1>
+    <div class="muted small" id="updated">Loading…</div>
+  </header>
+
+  <section class="kpis" id="kpis" aria-label="Summary"></section>
+
+  <section class="filters" aria-label="Filters">
+    <input type="search" id="q" placeholder="Search title, company, description…" aria-label="Search">
+    <label>Sector <select id="sector"><option value="">All</option></select></label>
+    <label>Min fit <select id="minfit">
+      <option value="-99">Any</option><option value="1">1+</option><option value="3" selected>3+ (good)</option><option value="5">5+ (strong)</option>
+    </select></label>
+    <label>Status <select id="status">
+      <option value="active" selected>Active (not passed)</option><option value="">All</option>
+    </select></label>
+    <label>Sort <select id="sort">
+      <option value="fit">Best fit</option><option value="new">Newest</option><option value="closes">Closing soon</option>
+    </select></label>
+    <button id="export" title="Download your statuses and notes as JSON">Export</button>
+    <button id="import" title="Load statuses and notes from an exported file">Import</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </section>
+
+  <div class="muted small" id="count" style="margin: 0 2px 8px"></div>
+  <section class="list" id="list" aria-live="polite"></section>
+
+  <details class="help">
+    <summary>How the fit score works</summary>
+    <p class="small">Fit = <b>sector</b> (0–3, from sector keyword hits in the title, category and description) + <b>values</b> (each value group in <code>config.json</code> adds its weight for a positive signal and subtracts it for a negative one; a real advertised salary adds +1) + <b>employer</b> (your own −5 to +5 rating in <code>config.json → employers</code>). A role matching no sector is capped at 1. Edit <code>config.json</code> to change any of this. Statuses and notes are saved in this browser only, so use Export/Import to move them between devices.</p>
+  </details>
+</main>
+
+<script>
+const STATUSES = [
+  ["new", "New"], ["shortlist", "Shortlisted"], ["applied", "Applied"], ["interview", "Interviewing"],
+  ["offer", "Offer"], ["rejected", "Rejected"], ["pass", "Passed"]
+];
+const STORE_KEY = "job-tracker:tracking";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const daysAgo = (iso) => iso ? Math.round((today - new Date(iso + "T00:00:00")) / 864e5) : null;
+
+let config, jobs = [], tracking = {};
+
+function loadTracking() { try { tracking = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch { tracking = {}; } }
+function saveTracking() { try { localStorage.setItem(STORE_KEY, JSON.stringify(tracking)); } catch {} }
+function track(id) { return tracking[id] || { status: "new", notes: "" }; }
+
+async function getJSON(path, fallback) {
+  try { const r = await fetch(path, { cache: "no-store" }); if (!r.ok) throw 0; return await r.json(); }
+  catch { return fallback; }
+}
+
+function kwRegex(words) {
+  if (!words || !words.length) return null;
+  return new RegExp("\\b(" + words.map((w) => w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+}
+
+function compile(cfg) {
+  return {
+    sectors: (cfg.sectors || []).map((s) => ({ name: s.name, re: kwRegex(s.keywords) })),
+    values: (cfg.values || []).map((v) => ({ name: v.name, weight: v.weight ?? 1, pos: kwRegex(v.positive), neg: kwRegex(v.negative) })),
+    employers: Object.fromEntries(Object.entries(cfg.employers || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => [k.toLowerCase(), v])),
+    blocked: new Set((cfg.blocked_employers || []).map((b) => b.toLowerCase())),
+  };
+}
+
+function score(job, c) {
+  const title = (job.title || "").toLowerCase();
+  const body = [job.category, job.description, job.notes].join(" ").toLowerCase();
+  const out = { sectors: [], pos: [], neg: [], sector: 0, values: 0, employer: 0, employerNote: "" };
+
+  let best = 0;
+  for (const s of c.sectors) {
+    if (!s.re) continue;
+    const hits = (title.match(s.re) || []).length * 2 + (body.match(s.re) || []).length;
+    if (hits) { out.sectors.push(s.name); best = Math.max(best, hits); }
+  }
+  out.sector = best === 0 ? 0 : best >= 4 ? 3 : best >= 2 ? 2 : 1;
+
+  const text = title + " " + body;
+  for (const v of c.values) {
+    const p = v.pos && text.match(v.pos), n = v.neg && text.match(v.neg);
+    if (p) { out.values += v.weight; out.pos.push(`${v.name}: ${[...new Set(p.map((x) => x.toLowerCase()))].join(", ")}`); }
+    if (n) { out.values -= v.weight; out.neg.push(`${v.name}: ${[...new Set(n.map((x) => x.toLowerCase()))].join(", ")}`); }
+  }
+  if (job.salary_min && !job.salary_predicted) { out.values += 1; out.pos.push("Salary shown"); }
+
+  const emp = c.employers[(job.company || "").toLowerCase()];
+  if (emp) { out.employer = Number(emp.score) || 0; out.employerNote = emp.note || ""; }
+
+  let total = out.sector + out.values + out.employer;
+  if (!out.sectors.length) total = Math.min(total, 1);
+  out.total = total;
+  out.band = total >= 5 ? "strong" : total >= 3 ? "good" : total >= 1 ? "weak" : "poor";
+  return out;
+}
+
+function money(n) { return n ? "£" + Math.round(n / 1000) + "k" : ""; }
+function salary(j) {
+  if (!j.salary_min && !j.salary_max) return "";
+  const r = j.salary_min && j.salary_max && j.salary_min !== j.salary_max ? `${money(j.salary_min)}–${money(j.salary_max)}` : money(j.salary_min || j.salary_max);
+  return j.salary_predicted ? `${r} (estimated)` : r;
+}
+
+function renderKpis(all) {
+  const count = (fn) => all.filter(fn).length;
+  const st = (s) => count((j) => track(j.id).status === s);
+  const items = [
+    ["Listings", all.length],
+    ["Strong fit", count((j) => j.fit.band === "strong")],
+    ["New this week", count((j) => (daysAgo(j.first_seen || j.posted) ?? 99) <= 7)],
+    ["Shortlisted", st("shortlist")],
+    ["Applied", st("applied")],
+    ["Interviewing", st("interview") + st("offer")],
+  ];
+  $("kpis").innerHTML = items.map(([l, n]) => `<div class="kpi"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+
+function render() {
+  renderKpis(jobs);
+  const q = $("q").value.trim().toLowerCase(), sector = $("sector").value, min = Number($("minfit").value), status = $("status").value, sort = $("sort").value;
+  let belowFit = 0;
+  let list = jobs.filter((j) => {
+    const t = track(j.id);
+    if (status === "active" && (t.status === "pass" || t.status === "rejected")) return false;
+    if (status && status !== "active" && t.status !== status) return false;
+    if (j.fit.total < min && t.status === "new") { belowFit++; return false; } // roles you've started tracking always show
+    if (sector && !j.fit.sectors.includes(sector)) return false;
+    if (q && ![j.title, j.company, j.location, j.description, t.notes].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const by = {
+    fit: (a, b) => b.fit.total - a.fit.total || (b.posted || "").localeCompare(a.posted || ""),
+    new: (a, b) => (b.first_seen || b.posted || "").localeCompare(a.first_seen || a.posted || ""),
+    closes: (a, b) => (a.closes || "9999").localeCompare(b.closes || "9999"),
+  }[sort];
+  list.sort(by);
+
+  $("count").textContent = `Showing ${list.length} of ${jobs.length}` + (belowFit ? ` · ${belowFit} below your minimum fit` : "");
+  if (!jobs.length) {
+    $("list").innerHTML = `<div class="empty"><b>No listings yet.</b><p class="muted small">Add roles to <code>data/manual.json</code>, or add API keys as repository secrets and run the <b>Fetch jobs</b> workflow (see README).</p></div>`;
+    return;
+  }
+  if (!list.length) { $("list").innerHTML = `<div class="empty muted">Nothing matches these filters.</div>`; return; }
+
+  $("list").innerHTML = list.map((j) => {
+    const t = track(j.id), f = j.fit;
+    const age = daysAgo(j.posted), closesIn = daysAgo(j.closes);
+    const isNew = (daysAgo(j.first_seen) ?? 99) <= 2 && t.status === "new";
+    const meta = [esc(j.company), esc(j.location), salary(j), age != null ? `posted ${age === 0 ? "today" : age + "d ago"}` : "",
+      closesIn != null ? (closesIn > 0 ? `<b style="color:var(--bad)">closed</b>` : `closes in ${-closesIn}d`) : "", esc(j.source || "Manual")].filter(Boolean).join(" · ");
+    const why = `Sector ${f.sector} + values ${f.values >= 0 ? "+" : ""}${f.values}` + (f.employer ? ` + employer ${f.employer >= 0 ? "+" : ""}${f.employer}` : "");
+    return `<article class="job ${t.status}" data-id="${esc(j.id)}">
+      <div class="fit ${f.band}" title="${esc(why)}"><b>${f.total}</b><span>${f.band}</span></div>
+      <div>
+        <h2><a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.title)}</a></h2>
+        <div class="meta">${meta}</div>
+        <div class="chips">
+          ${isNew ? `<span class="chip new">New</span>` : ""}
+          ${f.sectors.map((s) => `<span class="chip sector">${esc(s)}</span>`).join("")}
+          ${f.pos.map((s) => `<span class="chip pos">+ ${esc(s)}</span>`).join("")}
+          ${f.neg.map((s) => `<span class="chip neg">− ${esc(s)}</span>`).join("")}
+          ${f.employer ? `<span class="chip ${f.employer > 0 ? "pos" : "neg"}" title="${esc(f.employerNote)}">Employer ${f.employer > 0 ? "+" : ""}${f.employer}</span>` : ""}
+        </div>
+        ${j.description ? `<p class="desc" title="Click to expand">${esc(j.description)}</p>` : ""}
+        <div class="actions">
+          <select data-act="status" aria-label="Status">${STATUSES.map(([v, l]) => `<option value="${v}"${v === t.status ? " selected" : ""}>${l}</option>`).join("")}</select>
+          <textarea data-act="notes" placeholder="Notes: why it fits, contacts, deadlines…" aria-label="Notes">${esc(t.notes || j.notes || "")}</textarea>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+$("list").addEventListener("change", (e) => {
+  const card = e.target.closest(".job"); if (!card) return;
+  const id = card.dataset.id, t = { ...track(id) };
+  if (e.target.dataset.act === "status") t.status = e.target.value;
+  if (e.target.dataset.act === "notes") t.notes = e.target.value;
+  t.updated = new Date().toISOString().slice(0, 10);
+  tracking[id] = t; saveTracking();
+  if (e.target.dataset.act === "status") render();
+});
+$("list").addEventListener("click", (e) => { if (e.target.classList.contains("desc")) e.target.classList.toggle("open"); });
+["q", "sector", "minfit", "status", "sort"].forEach((id) => $(id).addEventListener("input", render));
+
+$("export").onclick = () => {
+  const blob = new Blob([JSON.stringify(tracking, null, 1)], { type: "application/json" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `job-tracking-${new Date().toISOString().slice(0, 10)}.json` });
+  a.click(); URL.revokeObjectURL(a.href);
+};
+$("import").onclick = () => $("importFile").click();
+$("importFile").onchange = async (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  try { Object.assign(tracking, JSON.parse(await file.text())); saveTracking(); render(); }
+  catch { alert("That file isn't a valid export."); }
+  e.target.value = "";
+};
+
+(async function init() {
+  loadTracking();
+  const [cfg, fetched, manual] = await Promise.all([
+    getJSON("config.json", {}), getJSON("data/jobs.json", { jobs: [] }), getJSON("data/manual.json", { jobs: [] }),
+  ]);
+  config = compile(cfg);
+  const manualJobs = (manual.jobs || []).map((j, i) => ({ source: "Manual", id: j.id || "manual-" + i, first_seen: j.posted, ...j }));
+  jobs = [...manualJobs, ...(fetched.jobs || [])]
+    .filter((j) => !config.blocked.has((j.company || "").toLowerCase()))
+    .map((j) => ({ ...j, fit: score(j, config) }));
+  $("sector").innerHTML += config.sectors.map((s) => `<option>${esc(s.name)}</option>`).join("");
+  STATUSES.forEach(([v, l]) => $("status").insertAdjacentHTML("beforeend", `<option value="${v}">${l}</option>`));
+  $("updated").textContent = fetched.updated ? `Listings updated ${new Date(fetched.updated).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}` : "Auto-fetch hasn't run yet";
+  render();
+})();
+</script>
+</body>
+</html>

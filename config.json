@@ -1,0 +1,71 @@
+{
+  "_readme": "Edit this file to tune the tracker. 'search' drives the daily fetch; 'sectors', 'values' and 'employers' drive the fit score on the dashboard (changes apply on next page load, no refetch needed).",
+
+  "search": {
+    "country": "gb",
+    "location": "London",
+    "distance_miles": 25,
+    "max_days_old": 14,
+    "queries": [
+      "sustainability analyst",
+      "climate policy",
+      "data analyst",
+      "policy officer",
+      "impact analyst",
+      "associate consultant"
+    ],
+    "exclude_title_words": ["senior", "lead", "principal", "head of", "director", "intern", "internship", "apprentice"]
+  },
+
+  "sectors": [
+    {
+      "name": "Climate & sustainability",
+      "keywords": ["climate", "sustainab", "net zero", "net-zero", "renewable", "decarbon", "carbon", "esg", "environmental","energy transition", "circular economy", "biodiversity"]
+    },
+    {
+      "name": "Public sector & policy",
+      "keywords": ["policy", "civil service", "government", "public sector", "council", "think tank", "regulator", "nhs", "local authority"]
+    },
+    {
+      "name": "Charity & social impact",
+      "keywords": ["charity", "non-profit", "nonprofit", "ngo", "social enterprise", "b corp", "b-corp", "impact", "foundation", "community"]
+    },
+    {
+      "name": "Tech & consulting",
+      "keywords": ["consult", "software", "data", "analytics", "technology", "digital", "product", "engineer"]
+    }
+  ],
+
+  "values": [
+    {
+      "name": "Environmental impact",
+      "weight": 2,
+      "positive": ["b corp", "b-corp", "net zero", "science based targets", "sbti", "carbon neutral", "climate positive"],
+      "negative": ["oil and gas", "oil & gas", "upstream", "fossil", "mining", "tobacco", "defence", "arms"]
+    },
+    {
+      "name": "Fair pay & transparency",
+      "weight": 1,
+      "positive": ["living wage", "pay gap", "salary band", "transparent pay"],
+      "negative": ["unpaid", "commission only", "commission-only", "competitive salary"]
+    },
+    {
+      "name": "Flexibility & wellbeing",
+      "weight": 1,
+      "positive": ["hybrid", "remote", "flexible working", "4 day week", "four day week", "wellbeing", "mental health"],
+      "negative": ["fast-paced", "work hard play hard", "long hours", "weekend work"]
+    },
+    {
+      "name": "Diversity & inclusion",
+      "weight": 1,
+      "positive": ["disability confident", "inclusive", "inclusion", "diversity", "equal opportunit", "neurodiver"],
+      "negative": []
+    }
+  ],
+
+  "employers": {
+    "_example_employer": { "score": 0, "note": "Add employers you've researched: score -5 (avoid) to +5 (dream employer). Names match case-insensitively against the listing's company." }
+  },
+
+  "blocked_employers": []
+}
