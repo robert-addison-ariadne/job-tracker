@@ -7,6 +7,7 @@ Sources (each is skipped if its access code isn't set):
   - Adzuna (UK)                   ADZUNA_APP_ID + ADZUNA_APP_KEY
   - ReliefWeb (worldwide, humanitarian/development)   RELIEFWEB_APPNAME
   - Remotive (remote / international)                 no code needed
+  - University job feeds (config.json "universities") no code needed
 
 For every job that could be suggested, the full advert is fetched once and a
 four-sentence summary is pulled out of it. Scoring happens here too, so the
@@ -21,7 +22,9 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(ROOT, "config.json")
@@ -311,6 +314,53 @@ def fetch_reliefweb(cfg):
     return out
 
 
+def fetch_universities(cfg):
+    """Universities' own vacancy feeds (research, policy, comms and sustainability roles)."""
+    out = []
+    for uni in cfg.get("universities", []):
+        try:
+            req = urllib.request.Request(uni["feed"], headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                root = ET.fromstring(r.read())
+        except Exception as e:
+            print(f"{uni['name']}: {e}", file=sys.stderr)
+            continue
+        n = 0
+        for item in root.iter("item"):
+            title = one_line(item.findtext("title"), 200)
+            title = re.sub(r"\s*\([A-Z0-9-]{4,}\)\s*$", "", title)  # drop the "(3549226BA)" reference
+            link = (item.findtext("link") or "").strip()
+            full = html_to_text(item.findtext("description"))
+            category = one_line(item.findtext("category"))
+            sal = re.search(r"Salary:\s*£?\s*([\d,]+)(?:\.\d+)?(?:\s*(?:to|-|–)\s*£?\s*([\d,]+))?", full, re.I)
+            closes = re.search(r"Closing Date:\s*(\d{1,2} \w{3,9} \d{4})", full, re.I)
+            try:
+                posted = parsedate_to_datetime(item.findtext("pubDate") or "").date().isoformat()
+            except (TypeError, ValueError):
+                posted = ""
+            close_iso = ""
+            if closes:
+                for fmt in ("%d %b %Y", "%d %B %Y"):
+                    close_iso = parse_date(closes.group(1), fmt)
+                    if close_iso:
+                        break
+            n += 1
+            out.append({
+                "id": f"uni-{re.sub(r'[^a-z0-9]+', '-', uni['name'].lower())}-{re.sub(r'[^A-Za-z0-9]+', '', link.split('=')[-1])[:40]}",
+                "source": uni["name"], "title": title, "company": uni["name"],
+                "location": uni.get("location", ""), "country": "United Kingdom", "abroad": False,
+                "salary_min": int(sal.group(1).replace(",", "")) if sal else None,
+                "salary_max": int(sal.group(2).replace(",", "")) if sal and sal.group(2) else None,
+                "posted": posted, "closes": close_iso, "url": link,
+                "description": one_line(full, 600),
+                "details_text": ((f"Job category: {category}.\n" if category else "") + full)[:6000],
+                "details_fetched": True,
+            })
+        print(f"{uni['name']}: {n}")
+        time.sleep(0.5)
+    return out
+
+
 # ---------------------------------------------------------------- scoring
 
 class Rules:
@@ -461,7 +511,7 @@ def main():
     words = cfg["search"].get("exclude_title_words", [])
     title_block = kw(words)
     fresh, keys = {}, {}
-    for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_reliefweb(cfg) + fetch_remotive(cfg):
+    for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_universities(cfg) + fetch_reliefweb(cfg) + fetch_remotive(cfg):
         if title_block and title_block.search(j["title"]):
             continue
         if j["id"] in fresh:
