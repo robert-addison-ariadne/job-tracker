@@ -65,6 +65,12 @@
     { "name": "University of Kent", "location": "Canterbury", "feed": "https://jobs.kent.ac.uk/rss/rss.aspx" }
   ],
 
+  "_higherin_note": "Higherin (student and graduate jobs) has no official feed; its public graduate and internship pages are read once a day.",
+  "higherin": { "categories": ["graduates", "internships"], "max_pages": 40 },
+
+  "_south_note": "For sources that list jobs across the whole UK (Higherin), only jobs mentioning one of these places are kept.",
+  "south_of_england_places": ["london", "south east", "south west", "southern england", "brighton", "hove", "kent", "canterbury", "maidstone", "medway", "tunbridge wells", "ashford", "sussex", "crawley", "chichester", "worthing", "eastbourne", "surrey", "guildford", "woking", "egham", "epsom", "redhill", "hampshire", "southampton", "portsmouth", "winchester", "basingstoke", "farnborough", "isle of wight", "dorset", "bournemouth", "poole", "berkshire", "reading", "slough", "bracknell", "newbury", "windsor", "oxford", "oxfordshire", "buckinghamshire", "high wycombe", "milton keynes", "hertfordshire", "st albans", "watford", "essex", "chelmsford", "wiltshire", "salisbury", "swindon", "bristol", "bath", "somerset", "gloucester", "cheltenham", "devon", "exeter", "plymouth", "cornwall", "truro", "nationwide", "national", "various locations", "multiple locations", "uk wide", "uk-wide", "across the uk", "remote"],
+
   "areas": [
     {
       "name": "Music (marketing & comms)",

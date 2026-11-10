@@ -204,6 +204,70 @@ def reed_details(job):
     return html_to_text(r.get("jobDescription"))
 
 
+def _higherin_page(url):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def fetch_higherin(cfg):
+    """Higherin's public graduate / internship listing pages (no official feed; pages allowed by its robots.txt)."""
+    h, out = cfg.get("higherin") or {}, []
+    for cat in h.get("categories", []):
+        page, last = 1, 1
+        while page <= min(last, h.get("max_pages", 40)):
+            try:
+                text = _higherin_page(f"https://higherin.com/search-jobs/{cat}" + (f"?page={page}" if page > 1 else ""))
+                i = text.index("__RMP_SEARCH_RESULTS_INITIAL_STATE__")
+                blob = text[text.index("{", i):]
+                state = json.loads(blob[:blob.index("</script>")].strip().rstrip(";"))
+            except Exception as e:
+                print(f"Higherin {cat} page {page}: {e}", file=sys.stderr)
+                break
+            last = (state.get("meta") or {}).get("lastPage") or state.get("lastPage") or last
+            if page == 1:
+                m = re.search(r'"lastPage":(\d+)', blob)
+                last = int(m.group(1)) if m else last
+            for r in state.get("data", []):
+                sal_text = (r.get("salary") or "").strip()
+                sal = re.search(r"£\s*([\d,]+)", sal_text)
+                yearly_sal = sal and re.search(r"year|annum|p\.?a", sal_text, re.I)
+                deadline = re.sub(r"(\d)(st|nd|rd|th)", r"\1", r.get("deadline") or "")
+                closes = parse_date(deadline, "%d %B %Y") or parse_date(deadline, "%d %b %Y")
+                kind = r.get("jobTypeName") or ""
+                out.append({
+                    "id": f"higherin-{r.get('jobId') or r.get('id')}", "source": "Higherin",
+                    "title": one_line(r.get("jobTitle"), 200), "company": r.get("companyName") or "",
+                    "location": r.get("jobLocationNames") or "", "country": "United Kingdom", "abroad": False,
+                    "check_south": True,
+                    "salary_text": sal_text,
+                    "salary_min": int(sal.group(1).replace(",", "")) if yearly_sal else None,
+                    "posted": "", "closes": closes, "url": r.get("url"),
+                    "description": f"{kind}. {r.get('relevantFor') or ''}".strip(),
+                    "graduate": "graduate" in kind.lower(),
+                })
+            page += 1
+            time.sleep(1.5)
+        print(f"Higherin {cat}: {page - 1} pages")
+    return out
+
+
+def higherin_details(job):
+    """Full advert text from the job page's structured data."""
+    text = _higherin_page(job["url"])
+    for m in re.finditer(r'<script type="application/ld\+json"[^>]*>(.*?)</script>', text, re.S):
+        try:
+            data = json.loads(m.group(1))
+        except ValueError:
+            continue
+        for d in data if isinstance(data, list) else [data]:
+            if isinstance(d, dict) and d.get("@type") == "JobPosting":
+                if d.get("datePosted"):
+                    job["posted"] = parse_date(d["datePosted"])
+                return html_to_text(d.get("description"))
+    return ""
+
+
 def fetch_adzuna(cfg):
     app_id, app_key = os.environ.get("ADZUNA_APP_ID"), os.environ.get("ADZUNA_APP_KEY")
     if not (app_id and app_key):
@@ -382,6 +446,7 @@ class Rules:
         self.bad_places = kw(ex.get("places"))
         pc = ex.get("postcode_areas") or []
         self.bad_postcodes = re.compile(r"(^|[\s,(])(" + "|".join(pc) + r")\d", re.I) if pc else None
+        self.south = kw(cfg.get("south_of_england_places"))  # for sources that list jobs UK-wide
         jt = cfg.get("job_type", {})
         self.part_time, self.pt_penalty = kw(jt.get("part_time_signals")), jt.get("part_time_penalty", 2)
         self.values = [{"name": v["name"], "w": v.get("weight", 1), "pos": kw(v.get("positive")),
@@ -478,6 +543,8 @@ def score(job, R):
     elif not job.get("abroad") and ((R.bad_places and R.bad_places.search(loc)) or
                                     (R.bad_postcodes and R.bad_postcodes.search(loc))):
         hidden = "outside the south of England"
+    elif job.get("check_south") and R.south and not R.south.search(loc):
+        hidden = "outside the south of England"
     elif R.hide_salary and pay >= R.hide_salary:
         hidden = "too senior"
     elif job.get("closes") and job["closes"] < TODAY.isoformat():
@@ -511,7 +578,8 @@ def main():
     words = cfg["search"].get("exclude_title_words", [])
     title_block = kw(words)
     fresh, keys = {}, {}
-    for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_universities(cfg) + fetch_reliefweb(cfg) + fetch_remotive(cfg):
+    for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_universities(cfg) + fetch_higherin(cfg) \
+            + fetch_reliefweb(cfg) + fetch_remotive(cfg):
         if title_block and title_block.search(j["title"]):
             continue
         if j["id"] in fresh:
@@ -546,13 +614,18 @@ def main():
     fetched = 0
     for j in merged.values():
         j["fit"] = score(j, R)
-        if j["fit"]["hidden"] is None and not j.get("details_fetched") and j["source"] == "Reed" \
+        # Higherin listings have no description, so also open southern, non-technical ones to judge the area
+        maybe = j["fit"]["hidden"] is None or (
+            j["source"] == "Higherin" and j["fit"]["hidden"] == "outside your areas"
+            and R.south and R.south.search(j.get("location") or "")
+            and not hits(R.hide_title, (j.get("title") or "").lower()))
+        if maybe and not j.get("details_fetched") and j["source"] in ("Reed", "Higherin") \
                 and fetched < MAX_DETAIL_FETCHES:
             try:
-                j["details_text"] = reed_details(j)[:6000]
+                j["details_text"] = (reed_details(j) if j["source"] == "Reed" else higherin_details(j))[:6000]
                 j["details_fetched"] = True
                 fetched += 1
-                time.sleep(0.3)
+                time.sleep(0.3 if j["source"] == "Reed" else 1.5)
             except Exception as e:
                 print(f"Reed details {j['id']}: {e}", file=sys.stderr)
                 j["details_fetched"] = True  # don't retry a broken advert every morning

@@ -9,6 +9,7 @@ A personal dashboard for a selective graduate job search. Every morning it colle
 1. **Every morning (about 6:30am UK time)** a scheduled GitHub task runs `scripts/fetch_jobs.py`:
    - searches **Reed** around seven towns across the south of England, plus Reed's graduate jobs
    - reads the vacancy feeds of ten universities in the south (listed in `config.json`)
+   - reads **Higherin**'s graduate jobs and internships pages (keeping only jobs in the south)
    - searches **Remotive** for remote and international roles (and **ReliefWeb** once it's set up)
    - scores every job against `config.json` and hides anything outside your areas, technical, too senior (£50k+) or in Wales
    - fetches the full advert for jobs that could be suggested and pulls out a four-sentence summary
