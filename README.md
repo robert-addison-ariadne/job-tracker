@@ -1,48 +1,32 @@
 # Job Tracker
 
-A personal dashboard for a selective graduate job search. It pulls listings daily from job boards, scores each one on **sector fit** and **values alignment**, and lets you track where each application has got to.
+A personal dashboard for a selective graduate job search. Every morning it collects jobs, keeps the ones that fit, and shows them for a twice-weekly review.
 
-**Live dashboard:** `https://<your-username>.github.io/job-tracker/` (once GitHub Pages is on)
+**Dashboard:** https://robert-addison-ariadne.github.io/job-tracker/
 
 ## How it works
 
-| Piece | What it does |
-|---|---|
-| `config.json` | Your search terms, southern towns searched around, sectors, level, values and employer ratings. |
-| `.github/workflows/fetch-jobs.yml` | Runs every day at 06:30 UTC (or on demand), calls `scripts/fetch_jobs.py`, and commits `data/jobs.json`. |
-| `data/jobs.json` | Listings from the job boards. Generated, so don't edit it by hand. |
-| `data/manual.json` | Roles you find yourself. Add them here. |
-| `index.html` | The dashboard (served by GitHub Pages). |
+1. **Every morning (about 6:30am UK time)** a scheduled GitHub task runs `scripts/fetch_jobs.py`:
+   - searches **Reed** around seven towns across the south of England, plus Reed's graduate jobs
+   - searches **Remotive** for remote and international roles (and **ReliefWeb** once it's set up)
+   - scores every job against `config.json` and hides anything outside your areas, technical, too senior (£50k+) or in Wales
+   - fetches the full advert for jobs that could be suggested and pulls out a four-sentence summary
+   - saves everything to `data/jobs.json`
+2. **The dashboard** (`index.html`) shows:
+   - **New**: suggested jobs you haven't ticked yet. Tick **✓ Potential** or **✕ Not for me**.
+   - **Seen**: a deadline timeline for your Potential jobs, then the Potential and Not-for-me lists.
+   - Jobs abroad only appear when they're a strong match, in a purple box.
 
-### Fit score
+Your ticks are saved in your browser. Use **Export my ticks** at the bottom of the page to back them up.
 
-`fit = sector (0–3) + values + employer`
+## Areas it looks for
 
-- **Sector:** how strongly the title, category and description match one of your `sectors` keyword lists. A role that matches no sector is capped at 1.
-- **Values:** each group in `values` adds its `weight` when the advert has a positive signal (e.g. "B Corp", "Living Wage", "hybrid"). It subtracts its weight when the advert has a negative signal (e.g. "oil and gas", "commission only"). A real advertised salary adds +1.
-- **Employer:** your own rating from −5 to +5 in `employers`, for companies you've researched. Use `blocked_employers` to hide a company completely.
+Music (marketing & comms side) · Sustainability & social impact · Journalism & communications · Public sector (roles using policy, research, analysis, strategy, engagement or comms skills) · Not-for-profits working on sustainability. Graduate level; full time preferred.
 
-Score bands: **5+ strong**, **3–4 good**, **1–2 weak**, **≤0 poor**. Keyword matching only shows what an advert *says*, so research an employer before you apply and record what you find under `employers`.
+## Access codes (GitHub → Settings → Secrets and variables → Actions)
 
-## Setup
-
-1. **Get free API keys** (one source is enough, both is better):
-   - Adzuna: https://developer.adzuna.com/ → you get an *App ID* and an *App Key*
-   - Reed: https://www.reed.co.uk/developers/jobseeker → you get an *API key*
-2. **Add them as repository secrets:** Settings → Secrets and variables → Actions → New repository secret
-   - `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `REED_API_KEY`
-3. **Turn on GitHub Pages:** Settings → Pages → Source: *Deploy from a branch* → `main` / `(root)`.
-4. **Run the first fetch:** Actions → *Fetch jobs* → *Run workflow*.
-5. **Tune `config.json`:** set your location, search `queries`, `exclude_title_words` and sectors. Commit the changes and the dashboard updates on the next page load.
-
-## Tracking applications
-
-Each card has a status (New → Shortlisted → Applied → Interviewing → Offer, or Rejected / Passed) and a notes box. These are saved in your browser's local storage, so they never reach the repo. Use **Export** / **Import** to back them up or move them to another device.
-
-## Local preview
-
-```powershell
-powershell -ExecutionPolicy Bypass -File serve.ps1
-```
-
-Then open http://localhost:8766/.
+| Name | Where from | Status |
+|---|---|---|
+| `REED_API_KEY` | reed.co.uk/developers | set up |
+| `RELIEFWEB_APPNAME` | apidoc.reliefweb.int (request an appname) | optional |
+| `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | developer.adzuna.com (paid) | optional |
