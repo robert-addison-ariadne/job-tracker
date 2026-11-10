@@ -62,11 +62,14 @@
     {
       "name": "Sustainability & social impact",
       "keywords": ["sustainab*", "climate", "net zero", "net-zero", "environmental", "social justice", "humanitarian", "human rights", "equality", "inequality", "inequalities", "poverty", "international development", "sustainable development", "regeneration", "urban", "urbanism", "town planning", "urban design", "placemaking", "place-making", "housing", "communities", "community", "resilience", "just transition", "migration", "migrant*", "refugee*", "asylum", "displacement", "social impact", "social value", "esg", "circular economy", "biodiversity", "nature recovery", "food security"],
-      "exclude": ["business development"]
+      "_title_only_note": "Everyday words that only count when they are in the job title.",
+      "title_only_keywords": ["community", "communities", "housing", "equality", "inequality", "inequalities", "resilience", "urban", "esg"],
+      "exclude": ["business development", "private equity"]
     },
     {
       "name": "Journalism & communications",
-      "keywords": ["journalis*", "reporter", "editorial", "editor", "newsroom", "news", "correspondent", "writer", "copywriter", "communications", "comms", "press office*", "media relations", "public relations", "storytelling", "publishing", "podcast*", "broadcast*"],
+      "title_only_keywords": ["communications", "comms", "content", "news", "writer"],
+      "keywords": ["journalis*", "reporter", "editorial", "editor", "newsroom", "news", "correspondent", "writer", "copywriter", "communications", "comms", "content", "press office*", "media relations", "public relations", "storytelling", "publishing", "podcast*", "broadcast*"],
       "exclude": []
     },
     {
@@ -88,7 +91,7 @@
   "roles": {
     "_note": "Job titles using skills from your CV get a boost. Technical or unrelated titles are hidden.",
     "cv_skill_title_words": ["policy", "research*", "researcher", "analyst", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "marketing", "digital", "social media", "content", "campaign*", "editorial", "writer", "journalist", "reporter", "project", "programme", "partnerships", "advocacy", "public affairs", "consultation", "impact"],
-    "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic"]
+    "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic", "practitioner", "project worker", "customer success", "customer service*", "account executive", "account manager", "complaints", "resident services", "service charge", "arboricultur*", "environmental health", "operations", "private equity", "housing officer", "housing support", "tenancy", "lettings", "property", "pensions", "conference producer", "graphic designer", "video editor"]
   },
 
   "level": {
@@ -112,7 +115,7 @@
     "part_time_penalty": 2
   },
 
-  "min_fit": 3,
+  "min_fit": 4,
 
   "values": [
     {

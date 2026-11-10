@@ -317,6 +317,8 @@ class Rules:
     def __init__(self, cfg):
         self.areas = [{
             "name": a["name"], "re": kw(a.get("keywords")), "ex": kw(a.get("exclude")),
+            # common words (e.g. "community") only count in the job title, not the advert text
+            "body_re": kw([w for w in a.get("keywords", []) if w not in set(a.get("title_only_keywords", []))]),
             "title_re": kw(a.get("needs_title_words")), "needs_area": a.get("needs_area"),
         } for a in cfg.get("areas", [])]
         self.areas.sort(key=lambda a: bool(a["needs_area"]))  # areas that depend on others go last
@@ -353,8 +355,10 @@ def score(job, R):
         if a["ex"] and a["ex"].search(text):
             continue
         t = len(hits(a["re"], title)) + len(hits(a["re"], company))
-        b = len(hits(a["re"], body))
-        if not (t or b >= body_needed):
+        bh = hits(a["body_re"], body)
+        b = len(bh)
+        # In the title, or mentioned repeatedly in the advert using at least two different keywords
+        if not (t or (b >= body_needed and len(set(bh)) >= 2)):
             continue
         if a["title_re"] and not a["title_re"].search(title):
             continue
