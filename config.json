@@ -67,8 +67,16 @@
     "_note": "You want entry-level roles where a year's experience helps you stand out. Entry-level signs add points; signs it's too senior take points off.",
     "entry_signals": ["graduate", "junior", "assistant", "trainee", "entry level", "entry-level", "intern", "internship", "placement", "apprentice", "coordinator", "co-ordinator", "no experience", "some experience", "1 year", "one year", "12 months", "6 months"],
     "senior_signals": ["extensive experience", "significant experience", "substantial experience", "3+ years", "4+ years", "5+ years", "proven track record", "line management", "manage a team"],
-    "senior_title_words": ["manager", "senior", "lead", "principal"],
-    "too_senior_salary": 40000
+    "senior_title_words": ["manager", "senior", "lead", "principal", "controller", "head"],
+    "too_senior_salary": 40000,
+    "_hide_note": "Jobs paying this much or more (or the day/hourly equivalent) are hidden completely as clearly too senior.",
+    "hide_above_salary": 50000
+  },
+
+  "exclude_locations": {
+    "_note": "Jobs in these places are hidden. The Bristol search circle reaches into South Wales, so Welsh towns and postcodes are listed here.",
+    "places": ["wales", "cardiff", "swansea", "bridgend", "caerphilly", "pontypridd", "merthyr tydfil", "chepstow", "monmouth", "cwmbran", "llanelli", "neath", "port talbot", "barry", "penarth", "abergavenny", "ebbw vale", "blackwood", "caldicot", "vale of glamorgan", "rhondda", "torfaen", "blaenau gwent"],
+    "postcode_areas": ["CF", "NP", "SA", "LD", "LL"]
   },
 
   "job_type": {

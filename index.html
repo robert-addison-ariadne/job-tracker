@@ -116,6 +116,7 @@
       <li><b>Values:</b> points added or taken off for what the advert says, e.g. B Corp, Living Wage, hybrid working, or fossil fuel work. A salary shown in the advert adds +1. Low-paid and unpaid roles aren't marked down for pay.</li>
       <li><b>Employer:</b> your own rating for companies you've looked into.</li>
     </ul>
+    <p class="small">Also hidden completely: jobs paying £50k or more (clearly too senior), and jobs in Wales (the Bristol search area reaches over the border).</p>
     <p class="small">5 or more = strong, 3–4 = good. Hover over a score to see how it adds up. Your statuses and notes are saved in this browser only, so use Export/Import to move them between devices.</p>
   </details>
 </main>
@@ -158,7 +159,11 @@ function compile(cfg) {
     level: cfg.level ? {
       entry: kwRegex(cfg.level.entry_signals), senior: kwRegex(cfg.level.senior_signals),
       seniorTitle: kwRegex(cfg.level.senior_title_words), maxSalary: cfg.level.too_senior_salary || 0,
+      hideSalary: cfg.level.hide_above_salary || 0,
     } : null,
+    excludePlaces: kwRegex((cfg.exclude_locations || {}).places),
+    excludePostcodes: ((cfg.exclude_locations || {}).postcode_areas || []).length
+      ? new RegExp("(^|[\\s,(])(" + cfg.exclude_locations.postcode_areas.join("|") + ")\\d", "i") : null,
     partTime: cfg.job_type ? { re: kwRegex(cfg.job_type.part_time_signals), penalty: cfg.job_type.part_time_penalty ?? 2 } : null,
     values: (cfg.values || []).map((v) => ({ name: v.name, weight: v.weight ?? 1, pos: kwRegex(v.positive), neg: kwRegex(v.negative) })),
     employers: Object.fromEntries(Object.entries(cfg.employers || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => [k.toLowerCase(), v])),
@@ -192,6 +197,7 @@ function score(job, c) {
     const st = L.seniorTitle && title.match(L.seniorTitle);
     if (st && !(L.entry && title.match(L.entry))) { out.level -= 2; out.neg.push(`Senior-sounding title: ${uniq(st)}`); }
     const yearly = (n) => !n ? 0 : n < 200 ? n * 1950 : n < 2000 ? n * 230 : n; // hourly / daily rates → yearly
+    if (L.hideSalary && yearly(job.salary_min) >= L.hideSalary && !job.salary_predicted) out.hideReason = "too senior";
     if (L.maxSalary && yearly(job.salary_min) >= L.maxSalary && !job.salary_predicted) { out.level -= 2; out.neg.push(`Salary suggests a senior role (${money(job.salary_min)}+)`); }
     out.level = Math.max(-4, out.level);
   }
@@ -213,6 +219,8 @@ function score(job, c) {
 
   let total = out.sector + out.level + out.values + out.employer;
   out.offSector = !out.sectors.length;
+  const where = job.location || "";
+  if ((c.excludePlaces && where.match(c.excludePlaces)) || (c.excludePostcodes && c.excludePostcodes.test(where))) out.hideReason = "outside your area";
   if (out.offSector) total = Math.min(total, 1);
   out.total = total;
   out.band = total >= 5 ? "strong" : total >= 3 ? "good" : total >= 1 ? "weak" : "poor";
@@ -247,8 +255,18 @@ function renderKpis(all) {
 
 function render() {
   // Jobs outside your sectors are hidden completely, unless you've added them yourself or already started tracking them.
-  const inScope = jobs.filter((j) => !j.fit.offSector || j.source === "Manual" || track(j.id).status !== "new");
-  const offSector = jobs.length - inScope.length;
+  // Same for jobs outside the south of England and clearly senior roles.
+  const keep = (j) => j.source === "Manual" || track(j.id).status !== "new";
+  const hidden = { sector: 0, "outside your area": 0, "too senior": 0 };
+  const inScope = jobs.filter((j) => {
+    if (keep(j)) return true;
+    if (j.fit.offSector) { hidden.sector++; return false; }
+    if (j.fit.hideReason) { hidden[j.fit.hideReason]++; return false; }
+    return true;
+  });
+  const offSector = hidden.sector;
+  const otherHidden = (hidden["outside your area"] ? ` · ${hidden["outside your area"]} outside the south of England hidden` : "")
+    + (hidden["too senior"] ? ` · ${hidden["too senior"]} too senior hidden` : "");
   renderKpis(inScope);
   const q = $("q").value.trim().toLowerCase(), sector = $("sector").value, min = Number($("minfit").value), status = $("status").value, sort = $("sort").value;
   let belowFit = 0;
@@ -268,7 +286,7 @@ function render() {
   }[sort];
   list.sort(by);
 
-  $("count").textContent = `Showing ${list.length} of ${inScope.length} jobs in your sectors` + (belowFit ? ` · ${belowFit} below your minimum fit` : "") + (offSector ? ` · ${offSector} outside your sectors hidden` : "");
+  $("count").textContent = `Showing ${list.length} of ${inScope.length} jobs in your sectors` + (belowFit ? ` · ${belowFit} below your minimum fit` : "") + (offSector ? ` · ${offSector} outside your sectors hidden` : "") + otherHidden;
   if (!jobs.length) {
     $("list").innerHTML = `<div class="empty"><b>No listings yet.</b><p class="muted small">Add roles to <code>data/manual.json</code>, or add API keys as repository secrets and run the <b>Fetch jobs</b> workflow (see README).</p></div>`;
     return;
