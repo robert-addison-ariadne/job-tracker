@@ -1,8 +1,7 @@
 {
-  "_readme": "Settings for the job tracker. 'search' controls what is collected each morning. 'sectors', 'level', 'job_type', 'values' and 'employers' control the fit score on the dashboard (changes show on next page load).",
+  "_readme": "Settings for the job tracker. The morning search (scripts/fetch_jobs.py) collects jobs, scores them with these settings, and the dashboard shows the ones that pass. Keyword rules: words match whole words only; a * at the end matches any ending (\"journalis*\" matches journalist and journalism).",
 
   "search": {
-    "country": "gb",
     "_locations_note": "South of England, covered as circles around these towns (radius in miles).",
     "locations": [
       { "name": "London", "distance_miles": 35 },
@@ -15,66 +14,94 @@
     ],
     "max_days_old": 14,
     "queries": [
-      "sustainability",
-      "environmental",
-      "climate",
-      "music",
+      "policy officer",
+      "policy assistant",
+      "social research",
+      "research officer",
+      "insight analyst",
+      "communications officer",
+      "communications assistant",
+      "digital communications",
+      "music marketing",
+      "music PR",
       "journalist",
-      "reporter",
       "editorial assistant",
-      "policy",
-      "public affairs",
-      "research assistant",
-      "town planning",
-      "transport planning",
-      "GIS",
-      "regeneration",
+      "sustainability officer",
+      "social value",
       "community engagement",
-      "housing policy"
+      "regeneration officer",
+      "international development",
+      "humanitarian",
+      "refugee",
+      "civil service",
+      "campaigns officer",
+      "public affairs"
     ],
+    "_graduate_note": "Also collects the newest jobs Reed has tagged as graduate jobs around each town.",
+    "graduate_pass": true,
     "exclude_title_words": ["senior", "lead", "principal", "head of", "director", "chief", "partner", "vp", "vice president"]
   },
 
-  "sectors": [
+  "abroad": {
+    "_note": "Jobs outside the UK only show if they score at least min_fit (a strong match), in a different coloured box.",
+    "min_fit": 5,
+    "remotive_categories": ["writing", "marketing", "all-others", "project-management"],
+    "_reliefweb_note": "ReliefWeb (humanitarian & development jobs worldwide) only runs once a RELIEFWEB_APPNAME secret is added in GitHub.",
+    "reliefweb_query": "communications OR policy OR research OR advocacy OR campaigns OR editor OR journalist OR \"social impact\" OR sustainability OR migration",
+    "reliefweb_categories": ["Information and Public Affairs", "Advocacy/Communications", "Monitoring and Evaluation", "Program/Project Management"]
+  },
+
+  "areas": [
     {
-      "name": "Sustainability",
-      "keywords": ["sustainab*", "climate", "net zero", "net-zero", "renewable*", "decarbon*", "carbon", "esg", "environmental", "energy transition", "circular economy", "biodiversity", "ecology", "conservation", "nature recovery"],
+      "name": "Music (marketing & comms)",
+      "keywords": ["music", "musician*", "record label", "record labels", "a&r", "festival*", "live music", "gig", "gigs", "streaming", "recording artist*", "artist management", "radio", "podcast*", "venue", "venues"],
+      "_needs_role_note": "Only counts if the job title is on the marketing, communications or journalism side.",
+      "needs_title_words": ["marketing", "digital", "social media", "content", "communications", "comms", "pr", "press", "publicity", "journalist", "journalism", "editorial", "editor", "writer", "campaign*", "brand", "partnerships", "community", "audience*", "fan", "promotion*", "marketer"],
       "exclude": []
     },
     {
-      "name": "Music",
-      "keywords": ["music", "record label", "a&r", "festival", "gig", "gigs", "live music", "audio", "radio", "musician", "artist management", "label services", "songwriter", "publishing royalties"],
+      "name": "Sustainability & social impact",
+      "keywords": ["sustainab*", "climate", "net zero", "net-zero", "environmental", "social justice", "humanitarian", "human rights", "equality", "inequality", "inequalities", "poverty", "international development", "sustainable development", "regeneration", "urban", "urbanism", "town planning", "urban design", "placemaking", "place-making", "housing", "communities", "community", "resilience", "just transition", "migration", "migrant*", "refugee*", "asylum", "displacement", "social impact", "social value", "esg", "circular economy", "biodiversity", "nature recovery", "food security"],
+      "exclude": ["business development"]
+    },
+    {
+      "name": "Journalism & communications",
+      "keywords": ["journalis*", "reporter", "editorial", "editor", "newsroom", "news", "correspondent", "writer", "copywriter", "communications", "comms", "press office*", "media relations", "public relations", "storytelling", "publishing", "podcast*", "broadcast*"],
       "exclude": []
     },
     {
-      "name": "Journalism & media",
-      "keywords": ["journalis*", "reporter", "editorial", "newsroom", "news", "broadcast", "podcast", "magazine", "sub-editor", "sub editor", "editor", "correspondent", "fact-check"],
+      "name": "Public sector",
+      "keywords": ["civil service", "civil servant*", "government", "home office", "cabinet office", "department for", "ministry", "hm treasury", "hmrc", "defra", "desnz", "mhclg", "office for national statistics", "local authority", "council", "borough", "county council", "city council", "combined authority", "greater london authority", "parliament", "public sector", "mayor of", "mayoral"],
+      "_needs_role_note": "Only counts for roles using skills from your CV (policy, research, analysis, strategy, engagement, communications).",
+      "needs_title_words": ["policy", "research*", "researcher", "analyst", "analysis", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "consultation", "public affairs", "partnerships", "programme", "project", "performance", "intelligence", "graduate", "fast stream"],
       "exclude": []
     },
     {
-      "name": "Policy",
-      "keywords": ["policy", "public affairs", "government", "civil service", "think tank", "parliament", "advocacy", "campaigns", "regulator", "policy officer", "policy adviser", "policy advisor", "policy analyst"],
-      "exclude": ["insurance", "underwrit*", "claims", "policyholder", "privacy policy"]
-    },
-    {
-      "name": "Human geography",
-      "keywords": ["geograph*", "town planning", "urban planning", "spatial planning", "transport plan*", "planning officer", "planning assistant", "planning consultant", "gis", "geospatial", "regeneration", "placemaking", "place-making", "housing policy", "housing strateg*", "housing research", "housing development", "community engagement", "community development", "urban", "rural", "migration", "demograph*", "social research", "research assistant", "census", "international development"],
+      "name": "Not-for-profit (sustainability)",
+      "keywords": ["charity", "charities", "charitable", "non-profit", "nonprofit", "not-for-profit", "not for profit", "ngo", "ngos", "social enterprise", "cic", "b corp", "b-corp", "think tank", "foundation", "advocacy"],
+      "_needs_area_note": "Only counts when the job is also about sustainability or social impact.",
+      "needs_area": "Sustainability & social impact",
       "exclude": []
     }
   ],
 
+  "roles": {
+    "_note": "Job titles using skills from your CV get a boost. Technical or unrelated titles are hidden.",
+    "cv_skill_title_words": ["policy", "research*", "researcher", "analyst", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "marketing", "digital", "social media", "content", "campaign*", "editorial", "writer", "journalist", "reporter", "project", "programme", "partnerships", "advocacy", "public affairs", "consultation", "impact"],
+    "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic"]
+  },
+
   "level": {
-    "_note": "You want entry-level roles where a year's experience helps you stand out. Entry-level signs add points; signs it's too senior take points off.",
-    "entry_signals": ["graduate", "junior", "assistant", "trainee", "entry level", "entry-level", "intern", "internship", "placement", "apprentice", "coordinator", "co-ordinator", "no experience", "some experience", "1 year", "one year", "12 months", "6 months"],
-    "senior_signals": ["extensive experience", "significant experience", "substantial experience", "3+ years", "4+ years", "5+ years", "proven track record", "line management", "manage a team"],
+    "_note": "Graduate level: entry-level signs add points, signs it's too senior take points off.",
+    "entry_signals": ["graduate", "graduates", "junior", "assistant", "trainee", "entry level", "entry-level", "intern", "internship", "placement", "apprentice", "coordinator", "co-ordinator", "no experience", "some experience", "1 year", "one year", "12 months", "6 months", "fast stream", "early careers", "0-2 years", "0 - 2 years"],
+    "senior_signals": ["extensive experience", "significant experience", "substantial experience", "3+ years", "4+ years", "5+ years", "proven track record", "line management", "manage a team", "3-4 years", "5-9 years", "10+ years"],
     "senior_title_words": ["manager", "senior", "lead", "principal", "controller", "head"],
     "too_senior_salary": 40000,
-    "_hide_note": "Jobs paying this much or more (or the day/hourly equivalent) are hidden completely as clearly too senior.",
     "hide_above_salary": 50000
   },
 
   "exclude_locations": {
-    "_note": "Jobs in these places are hidden. The Bristol search circle reaches into South Wales, so Welsh towns and postcodes are listed here.",
+    "_note": "Jobs in these places are hidden. The Bristol search circle reaches into South Wales.",
     "places": ["wales", "cardiff", "swansea", "bridgend", "caerphilly", "pontypridd", "merthyr tydfil", "chepstow", "monmouth", "cwmbran", "llanelli", "neath", "port talbot", "barry", "penarth", "abergavenny", "ebbw vale", "blackwood", "caldicot", "vale of glamorgan", "rhondda", "torfaen", "blaenau gwent"],
     "postcode_areas": ["CF", "NP", "SA", "LD", "LL"]
   },
@@ -84,6 +111,8 @@
     "part_time_signals": ["part time", "part-time", "hours per week", "days per week", "days a week"],
     "part_time_penalty": 2
   },
+
+  "min_fit": 3,
 
   "values": [
     {

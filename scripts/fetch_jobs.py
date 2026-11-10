@@ -1,11 +1,16 @@
-"""Fetch job listings from Adzuna and/or Reed into data/jobs.json.
+"""Collect jobs, score them against config.json, and write data/jobs.json.
 
-Runs daily in GitHub Actions (see .github/workflows/fetch-jobs.yml), or locally:
-    ADZUNA_APP_ID=... ADZUNA_APP_KEY=... REED_API_KEY=... python scripts/fetch_jobs.py
+Runs every morning in GitHub Actions (.github/workflows/fetch-jobs.yml).
 
-Each source is skipped if its keys aren't set. Uses only the standard library.
-Listings are merged with the existing file: new ones get first_seen = today,
-ones that disappear from results are kept (marked stale) for 30 days, then dropped.
+Sources (each is skipped if its access code isn't set):
+  - Reed (UK)                     REED_API_KEY
+  - Adzuna (UK)                   ADZUNA_APP_ID + ADZUNA_APP_KEY
+  - ReliefWeb (worldwide, humanitarian/development)   RELIEFWEB_APPNAME
+  - Remotive (remote / international)                 no code needed
+
+For every job that could be suggested, the full advert is fetched once and a
+four-sentence summary is pulled out of it. Scoring happens here too, so the
+dashboard only has to display the result. Standard library only.
 """
 import base64
 import html
@@ -22,32 +27,178 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(ROOT, "config.json")
 OUT = os.path.join(ROOT, "data", "jobs.json")
 KEEP_STALE_DAYS = 30
-UA = "job-tracker/1.0 (personal dashboard)"
+MAX_DETAIL_FETCHES = 400
+UA = "job-tracker/1.0 (personal job search dashboard)"
+TODAY = date.today()
 
 
-def get_json(url, headers=None):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, **(headers or {})})
+# ---------------------------------------------------------------- helpers
+
+def http_json(url, headers=None, body=None):
+    data = json.dumps(body).encode() if body is not None else None
+    hdrs = {"User-Agent": UA, **(headers or {})}
+    if data is not None:
+        hdrs["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=data, headers=hdrs)
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
 
 
-def clean(text, limit=600):
-    text = re.sub(r"<[^>]+>", " ", html.unescape(text or ""))
-    text = re.sub(r"\s+", " ", text).strip()
-    return text[:limit]
+def html_to_text(s):
+    """HTML -> plain text, keeping paragraph / bullet breaks as new lines."""
+    s = html.unescape(s or "")
+    s = re.sub(r"(?i)<\s*(br|/p|/li|/h\d|/div|/tr)\s*/?>", "\n", s)
+    s = re.sub(r"(?i)<\s*li[^>]*>", "\n", s)
+    s = re.sub(r"<[^>]+>", " ", s)
+    s = s.replace(" ", " ")
+    s = re.sub(r"[ \t\r\f\v]+", " ", s)
+    s = re.sub(r"\n\s*", "\n", s)
+    return s.strip()
 
 
-def excluded(title, words):
-    t = title.lower()
-    return any(re.search(r"\b" + re.escape(w.lower()) + r"\b", t) for w in words)
+def one_line(s, limit=None):
+    s = re.sub(r"\s+", " ", html_to_text(s)).strip()
+    return s[:limit] if limit else s
 
+
+def kw(words):
+    """Same rule as the dashboard: whole words, or any ending with a trailing *."""
+    if not words:
+        return None
+    parts = []
+    for w in words:
+        w = w.lower()
+        if w.endswith("*"):
+            parts.append(re.escape(w[:-1]))
+        else:
+            parts.append(re.escape(w) + r"(?![a-z0-9])")
+    return re.compile(r"(?<![a-z0-9])(" + "|".join(parts) + ")", re.I)
+
+
+def hits(rx, text):
+    return [m.group(0).lower() for m in rx.finditer(text)] if rx and text else []
+
+
+def uniq(xs):
+    return ", ".join(dict.fromkeys(xs))
+
+
+def parse_date(s, fmt=None):
+    if not s:
+        return ""
+    try:
+        if fmt:
+            return datetime.strptime(s, fmt).date().isoformat()
+        return s[:10] if re.match(r"\d{4}-\d{2}-\d{2}", s) else ""
+    except ValueError:
+        return ""
+
+
+def yearly(n):
+    """Hourly / daily rates -> rough yearly equivalent."""
+    if not n:
+        return 0
+    return n * 1950 if n < 200 else n * 230 if n < 2000 else n
+
+
+# ---------------------------------------------------------------- summary
+
+BOILERPLATE = re.compile(
+    r"\b(apply|applying|applications?|click|cv|cvs|reed|please|right to work|visa|sponsorship|gdpr|privacy|"
+    r"data protection|cookies|shortlist\w*|closing date|deadline|unfortunately|successful candidates?|"
+    r"we reserve|safeguarding|dbs|equal opportunit\w*|disability confident|guaranteed interview|"
+    r"recruitment (agency|business|consultancy)|employment agency|job reference|ref(erence)? ?no)\b",
+    re.I,
+)
+LABEL_LINE = re.compile(r"^[\w /&()-]{1,30}:\s")
+
+
+def summarise(text, n=4):
+    """Pick the first n informative sentences from the full advert."""
+    prose, bullets = [], []
+    for line in (text or "").split("\n"):
+        line = line.strip(" -•*·\t")
+        if len(line) < 40:
+            continue
+        if LABEL_LINE.match(line) and len(line) < 90:
+            continue  # "Salary: £28,000", "Location: London"
+        parts = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(“])", line)
+        for p in parts:
+            p = p.strip()
+            if not (40 <= len(p) <= 320) or BOILERPLATE.search(p):
+                continue
+            if sum(c.isupper() for c in p) > len(p) * 0.5:
+                continue  # SHOUTY HEADINGS
+            if p[-1] in ".!?":
+                prose.append(p)
+            else:
+                bullets.append(p + ".")
+    picked = list(dict.fromkeys(prose))[:n]
+    if len(picked) < n:
+        picked += [b for b in dict.fromkeys(bullets) if b not in picked][: n - len(picked)]
+    return " ".join(picked)
+
+
+# ---------------------------------------------------------------- sources
 
 def searches(s):
-    """Every (search term, town, radius in miles) combination to run."""
-    locs = s.get("locations") or [{"name": s.get("location", ""), "distance_miles": s.get("distance_miles", 25)}]
-    for loc in locs:
-        for q in s["queries"]:
+    for loc in s.get("locations", []):
+        for q in s.get("queries", []):
             yield q, loc["name"], loc.get("distance_miles", 25)
+
+
+def fetch_reed(cfg):
+    key = os.environ.get("REED_API_KEY")
+    if not key:
+        print("Reed: no key, skipping")
+        return []
+    s, out = cfg["search"], []
+    auth = {"Authorization": "Basic " + base64.b64encode(f"{key}:".encode()).decode()}
+    cutoff = (TODAY - timedelta(days=s.get("max_days_old", 14))).isoformat()
+
+    runs = [({"keywords": q, "locationName": w, "distanceFromLocation": m}, f"'{q}' near {w}", False)
+            for q, w, m in searches(s)]
+    if s.get("graduate_pass"):
+        runs += [({"graduate": "true", "locationName": l["name"], "distanceFromLocation": l.get("distance_miles", 25)},
+                  f"graduate jobs near {l['name']}", True) for l in s.get("locations", [])]
+
+    for params, label, graduate in runs:
+        params = {**params, "resultsToTake": 100}
+        try:
+            data = http_json("https://www.reed.co.uk/api/1.0/search?" + urllib.parse.urlencode(params), auth)
+        except Exception as e:
+            print(f"Reed {label}: {e}", file=sys.stderr)
+            continue
+        n = 0
+        for r in data.get("results", []):
+            posted = parse_date(r.get("date"), "%d/%m/%Y")
+            if posted and posted < cutoff:
+                continue
+            n += 1
+            out.append({
+                "id": f"reed-{r['jobId']}", "source": "Reed", "source_id": r["jobId"],
+                "title": one_line(r.get("jobTitle"), 200),
+                "company": r.get("employerName") or "",
+                "location": r.get("locationName") or "",
+                "country": "United Kingdom", "abroad": False,
+                "salary_min": r.get("minimumSalary"), "salary_max": r.get("maximumSalary"),
+                "posted": posted, "closes": parse_date(r.get("expirationDate"), "%d/%m/%Y"),
+                "url": r.get("jobUrl"), "description": one_line(r.get("jobDescription"), 600),
+                "graduate": graduate, "near": params.get("locationName", ""),
+            })
+        print(f"Reed {label}: {n}")
+        time.sleep(0.4)
+    return out
+
+
+def reed_details(job):
+    key = os.environ.get("REED_API_KEY")
+    auth = {"Authorization": "Basic " + base64.b64encode(f"{key}:".encode()).decode()}
+    job_id = job.get("source_id") or job["id"].split("-", 1)[1]
+    r = http_json(f"https://www.reed.co.uk/api/1.0/jobs/{job_id}", auth)
+    if r.get("partTime") and not r.get("fullTime"):
+        job["part_time"] = True
+    return html_to_text(r.get("jobDescription"))
 
 
 def fetch_adzuna(cfg):
@@ -57,99 +208,237 @@ def fetch_adzuna(cfg):
         return []
     s, out = cfg["search"], []
     for q, where, miles in searches(s):
-        params = {
-            "app_id": app_id, "app_key": app_key, "what": q,
-            "where": where, "distance": round(miles * 1.609),
-            "max_days_old": s.get("max_days_old", 14),
-            "results_per_page": 50, "content-type": "application/json",
-        }
-        url = f"https://api.adzuna.com/v1/api/jobs/{s.get('country', 'gb')}/search/1?" + urllib.parse.urlencode(params)
+        params = {"app_id": app_id, "app_key": app_key, "what": q, "where": where,
+                  "distance": round(miles * 1.609), "max_days_old": s.get("max_days_old", 14),
+                  "results_per_page": 50, "content-type": "application/json"}
         try:
-            data = get_json(url)
-        except Exception as e:  # keep going if one query fails
+            data = http_json("https://api.adzuna.com/v1/api/jobs/gb/search/1?" + urllib.parse.urlencode(params))
+        except Exception as e:
             print(f"Adzuna '{q}' near {where}: {e}", file=sys.stderr)
             continue
         for r in data.get("results", []):
             out.append({
-                "id": f"adzuna-{r['id']}",
-                "source": "Adzuna",
-                "title": clean(r.get("title"), 200),
+                "id": f"adzuna-{r['id']}", "source": "Adzuna",
+                "title": one_line(r.get("title"), 200),
                 "company": (r.get("company") or {}).get("display_name", ""),
                 "location": (r.get("location") or {}).get("display_name", ""),
-                "salary_min": r.get("salary_min"),
-                "salary_max": r.get("salary_max"),
+                "country": "United Kingdom", "abroad": False,
+                "salary_min": r.get("salary_min"), "salary_max": r.get("salary_max"),
                 "salary_predicted": r.get("salary_is_predicted") == "1",
-                "category": (r.get("category") or {}).get("label", ""),
-                "contract": r.get("contract_time") or "",
-                "posted": (r.get("created") or "")[:10],
-                "url": r.get("redirect_url"),
-                "description": clean(r.get("description")),
-                "query": q,
+                "posted": parse_date(r.get("created")), "closes": "",
+                "url": r.get("redirect_url"), "description": one_line(r.get("description"), 600),
             })
         print(f"Adzuna '{q}' near {where}: {len(data.get('results', []))}")
         time.sleep(1)
     return out
 
 
-def fetch_reed(cfg):
-    key = os.environ.get("REED_API_KEY")
-    if not key:
-        print("Reed: no key, skipping")
-        return []
-    s, out = cfg["search"], []
-    auth = "Basic " + base64.b64encode(f"{key}:".encode()).decode()
-    for q, where, miles in searches(s):
-        params = {
-            "keywords": q, "locationName": where,
-            "distanceFromLocation": miles, "resultsToTake": 100,
-        }
+def fetch_remotive(cfg):
+    a, out = cfg.get("abroad", {}), []
+    cutoff = (TODAY - timedelta(days=cfg["search"].get("max_days_old", 14))).isoformat()
+    for cat in a.get("remotive_categories", []):
         try:
-            data = get_json("https://www.reed.co.uk/api/1.0/search?" + urllib.parse.urlencode(params), {"Authorization": auth})
+            data = http_json("https://remotive.com/api/remote-jobs?" + urllib.parse.urlencode({"category": cat}))
         except Exception as e:
-            print(f"Reed '{q}' near {where}: {e}", file=sys.stderr)
+            print(f"Remotive {cat}: {e}", file=sys.stderr)
             continue
-        cutoff = date.today() - timedelta(days=s.get("max_days_old", 14))
         n = 0
-        for r in data.get("results", []):
-            try:
-                posted = datetime.strptime(r.get("date", ""), "%d/%m/%Y").date()
-            except ValueError:
-                posted = None
+        for r in data.get("jobs", []):
+            posted = parse_date(r.get("publication_date"))
             if posted and posted < cutoff:
                 continue
             n += 1
+            where = r.get("candidate_required_location") or "Worldwide"
+            full = html_to_text(r.get("description"))
             out.append({
-                "id": f"reed-{r['jobId']}",
-                "source": "Reed",
-                "title": clean(r.get("jobTitle"), 200),
-                "company": r.get("employerName") or "",
-                "location": r.get("locationName") or "",
-                "salary_min": r.get("minimumSalary"),
-                "salary_max": r.get("maximumSalary"),
-                "salary_predicted": False,
-                "category": "",
-                "contract": "",
-                "posted": posted.isoformat() if posted else "",
-                "closes": _reed_date(r.get("expirationDate")),
-                "url": r.get("jobUrl"),
-                "description": clean(r.get("jobDescription")),
-                "query": q,
+                "id": f"remotive-{r['id']}", "source": "Remotive",
+                "title": one_line(r.get("title"), 200), "company": r.get("company_name") or "",
+                "location": f"Remote ({where})", "country": where,
+                "abroad": not re.search(r"\b(uk|united kingdom|england|britain)\b", where, re.I),
+                "salary_text": (r.get("salary") or "").strip(),
+                "posted": posted, "closes": "", "url": r.get("url"),
+                "description": one_line(full, 600), "details_text": full[:6000], "details_fetched": True,
             })
-        print(f"Reed '{q}' near {where}: {n}")
-        time.sleep(0.5)
+        print(f"Remotive {cat}: {n}")
+        time.sleep(2)
     return out
 
 
-def _reed_date(s):
+def fetch_reliefweb(cfg):
+    app = os.environ.get("RELIEFWEB_APPNAME")
+    if not app:
+        print("ReliefWeb: no appname, skipping")
+        return []
+    a = cfg.get("abroad", {})
+    since = (TODAY - timedelta(days=cfg["search"].get("max_days_old", 14))).isoformat() + "T00:00:00+00:00"
+    conditions = [{"field": "date.created", "value": {"from": since}}]
+    if a.get("reliefweb_categories"):
+        conditions.append({"field": "career_categories.name", "value": a["reliefweb_categories"], "operator": "OR"})
+    body = {
+        "limit": 300, "sort": ["date.created:desc"],
+        "query": {"value": a.get("reliefweb_query", "communications"), "fields": ["title"]},
+        "filter": {"operator": "AND", "conditions": conditions},
+        "fields": {"include": ["title", "body", "url", "url_alias", "source.name", "country.name", "city.name",
+                               "date.closing", "date.created", "experience.name", "career_categories.name"]},
+    }
     try:
-        return datetime.strptime(s or "", "%d/%m/%Y").date().isoformat()
-    except ValueError:
-        return ""
+        data = http_json("https://api.reliefweb.int/v2/jobs?" + urllib.parse.urlencode({"appname": app}), body=body)
+    except Exception as e:
+        print(f"ReliefWeb: {e}", file=sys.stderr)
+        return []
+    out = []
+    for item in data.get("data", []):
+        f = item.get("fields", {})
+        countries = [c.get("name", "") for c in f.get("country", [])]
+        cities = [c.get("name", "") for c in f.get("city", [])]
+        country = ", ".join(countries) or "Worldwide"
+        exp = ", ".join(e.get("name", "") for e in f.get("experience", []))
+        full = html_to_text(f.get("body", "").replace("\n", "<br>"))
+        out.append({
+            "id": f"reliefweb-{item.get('id')}", "source": "ReliefWeb",
+            "title": one_line(f.get("title"), 200),
+            "company": ", ".join(s.get("name", "") for s in f.get("source", [])),
+            "location": ", ".join(cities + countries) or "Worldwide", "country": country,
+            "abroad": "United Kingdom" not in countries,
+            "posted": parse_date((f.get("date") or {}).get("created")),
+            "closes": parse_date((f.get("date") or {}).get("closing")),
+            "url": f.get("url_alias") or f.get("url"),
+            "description": one_line((f"Experience: {exp} years. " if exp else "") + full, 600),
+            "details_text": ((f"Experience required: {exp} years.\n" if exp else "") + full)[:6000],
+            "details_fetched": True,
+        })
+    print(f"ReliefWeb: {len(out)}")
+    return out
 
+
+# ---------------------------------------------------------------- scoring
+
+class Rules:
+    def __init__(self, cfg):
+        self.areas = [{
+            "name": a["name"], "re": kw(a.get("keywords")), "ex": kw(a.get("exclude")),
+            "title_re": kw(a.get("needs_title_words")), "needs_area": a.get("needs_area"),
+        } for a in cfg.get("areas", [])]
+        self.areas.sort(key=lambda a: bool(a["needs_area"]))  # areas that depend on others go last
+        r = cfg.get("roles", {})
+        self.skills, self.hide_title = kw(r.get("cv_skill_title_words")), kw(r.get("hide_title_words"))
+        L = cfg.get("level", {})
+        self.entry, self.senior = kw(L.get("entry_signals")), kw(L.get("senior_signals"))
+        self.senior_title = kw(L.get("senior_title_words"))
+        self.too_senior, self.hide_salary = L.get("too_senior_salary", 0), L.get("hide_above_salary", 0)
+        ex = cfg.get("exclude_locations", {})
+        self.bad_places = kw(ex.get("places"))
+        pc = ex.get("postcode_areas") or []
+        self.bad_postcodes = re.compile(r"(^|[\s,(])(" + "|".join(pc) + r")\d", re.I) if pc else None
+        jt = cfg.get("job_type", {})
+        self.part_time, self.pt_penalty = kw(jt.get("part_time_signals")), jt.get("part_time_penalty", 2)
+        self.values = [{"name": v["name"], "w": v.get("weight", 1), "pos": kw(v.get("positive")),
+                        "neg": kw(v.get("negative"))} for v in cfg.get("values", [])]
+        self.employers = {k.lower(): v for k, v in cfg.get("employers", {}).items() if not k.startswith("_")}
+        self.blocked = {b.lower() for b in cfg.get("blocked_employers", [])}
+        self.min_fit = cfg.get("min_fit", 3)
+        self.abroad_min = cfg.get("abroad", {}).get("min_fit", 5)
+
+
+def score(job, R):
+    title = (job.get("title") or "").lower()
+    body = (job.get("details_text") or job.get("description") or "").lower()
+    company = (job.get("company") or "").lower()
+    text = f"{title} {body}"
+    pos, neg, areas, hidden = [], [], [], None
+
+    # Which of your areas is it in?
+    best, body_needed = 0, 2 if len(body) < 1500 else 3
+    for a in R.areas:
+        if a["ex"] and a["ex"].search(text):
+            continue
+        t = len(hits(a["re"], title)) + len(hits(a["re"], company))
+        b = len(hits(a["re"], body))
+        if not (t or b >= body_needed):
+            continue
+        if a["title_re"] and not a["title_re"].search(title):
+            continue
+        if a["needs_area"] and a["needs_area"] not in areas:
+            continue
+        areas.append(a["name"])
+        best = max(best, t * 2 + b)
+    area_pts = 0 if not areas else 3 if best >= 4 else 2 if best >= 2 else 1
+
+    # Is it your kind of role?
+    role_pts = 0
+    sk = hits(R.skills, title)
+    if sk:
+        role_pts = 2
+        pos.append(f"Uses your skills: {uniq(sk)}")
+
+    # Graduate level?
+    level = 0
+    e = hits(R.entry, text)
+    if e or job.get("graduate"):
+        level += 2
+        pos.append("Graduate / entry level" + (f": {uniq(e)}" if e else ""))
+    s = hits(R.senior, body)
+    if s:
+        level -= 2
+        neg.append(f"Asks for a lot of experience: {uniq(s)}")
+    st = hits(R.senior_title, title)
+    if st and not hits(R.entry, title):
+        level -= 2
+        neg.append(f"Senior-sounding title: {uniq(st)}")
+    pay = yearly(job.get("salary_min")) if not job.get("salary_predicted") else 0
+    if R.too_senior and pay >= R.too_senior:
+        level -= 2
+        neg.append("Salary suggests a senior role")
+    level = max(level, -4)
+
+    if job.get("part_time") or hits(R.part_time, text):
+        level -= R.pt_penalty
+        neg.append("Part-time")
+
+    values = 0
+    for v in R.values:
+        p, n = hits(v["pos"], text), hits(v["neg"], text)
+        if p:
+            values += v["w"]
+            pos.append(f"{v['name']}: {uniq(p)}")
+        if n:
+            values -= v["w"]
+            neg.append(f"{v['name']}: {uniq(n)}")
+    if job.get("salary_min") and not job.get("salary_predicted"):
+        values += 1
+        pos.append("Salary shown")
+
+    emp = R.employers.get(company, {})
+    employer = int(emp.get("score", 0) or 0)
+
+    total = area_pts + role_pts + level + values + employer
+
+    # Reasons to hide it completely
+    loc = job.get("location") or ""
+    if company in R.blocked:
+        hidden = "blocked employer"
+    elif hits(R.hide_title, title):
+        hidden = "not your kind of role"
+    elif not areas:
+        hidden = "outside your areas"
+    elif not job.get("abroad") and ((R.bad_places and R.bad_places.search(loc)) or
+                                    (R.bad_postcodes and R.bad_postcodes.search(loc))):
+        hidden = "outside the south of England"
+    elif R.hide_salary and pay >= R.hide_salary:
+        hidden = "too senior"
+    elif job.get("closes") and job["closes"] < TODAY.isoformat():
+        hidden = "closed"
+
+    need = R.abroad_min if job.get("abroad") else R.min_fit
+    return {"total": total, "areas": areas, "pos": pos, "neg": neg, "hidden": hidden,
+            "show": hidden is None and total >= need}
+
+
+# ---------------------------------------------------------------- main
 
 def dedupe_key(j):
-    norm = lambda s: re.sub(r"[^a-z0-9]", "", (s or "").lower())
-    return norm(j["title"]) + "|" + norm(j["company"])
+    norm = lambda s: re.sub(r"[^a-z0-9 ]", "", re.sub(r"\(.*?\)", "", (s or "").lower())).split()
+    return " ".join(norm(j.get("company"))) + "|" + " ".join(norm(j.get("title"))[:5])
 
 
 def main():
@@ -161,41 +450,72 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         existing = {}
 
-    today = date.today().isoformat()
-    blocked = {b.lower() for b in cfg.get("blocked_employers", [])}
-    words = cfg["search"].get("exclude_title_words", [])
-
-    fresh, seen_keys = {}, set()
-    for j in fetch_adzuna(cfg) + fetch_reed(cfg):
-        if excluded(j["title"], words) or j["company"].lower() in blocked:
-            continue
-        k = dedupe_key(j)
-        if k in seen_keys:
-            continue  # same role listed on both boards / under several queries
-        seen_keys.add(k)
-        fresh[j["id"]] = j
-
-    if not (os.environ.get("ADZUNA_APP_ID") or os.environ.get("REED_API_KEY")):
-        print("No API keys set; leaving data/jobs.json unchanged. See README > Setup.")
+    if not any(os.environ.get(k) for k in ("REED_API_KEY", "ADZUNA_APP_ID", "RELIEFWEB_APPNAME")):
+        print("No access codes set; leaving data/jobs.json unchanged. See README > Setup.")
         return
 
+    words = cfg["search"].get("exclude_title_words", [])
+    title_block = kw(words)
+    fresh, keys = {}, {}
+    for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_reliefweb(cfg) + fetch_remotive(cfg):
+        if title_block and title_block.search(j["title"]):
+            continue
+        if j["id"] in fresh:
+            fresh[j["id"]]["graduate"] = fresh[j["id"]].get("graduate") or j.get("graduate")
+            continue
+        k = dedupe_key(j)
+        if k in keys:
+            continue  # same job posted again / on another board
+        keys[k] = j["id"]
+        fresh[j["id"]] = j
+
+    today = TODAY.isoformat()
     merged = {}
     for jid, j in fresh.items():
         prev = existing.get(jid, {})
+        for k in ("summary", "details_text", "details_fetched", "part_time"):
+            if k in prev and k not in j:
+                j[k] = prev[k]
+        j["graduate"] = j.get("graduate") or prev.get("graduate", False)
         j["first_seen"] = prev.get("first_seen", today)
         j["last_seen"] = today
         merged[jid] = j
-    stale_cutoff = (date.today() - timedelta(days=KEEP_STALE_DAYS)).isoformat()
+    stale_cutoff = (TODAY - timedelta(days=KEEP_STALE_DAYS)).isoformat()
     for jid, j in existing.items():
-        if jid not in merged and dedupe_key(j) not in seen_keys and j.get("last_seen", today) >= stale_cutoff:
+        if jid in merged or dedupe_key(j) in keys:
+            continue
+        if j.get("last_seen", today) >= stale_cutoff and not (j.get("closes") and j["closes"] < today):
             merged[jid] = j
 
-    jobs = sorted(merged.values(), key=lambda j: (j.get("first_seen", ""), j.get("posted", "")), reverse=True)
+    # Score everything; fetch full adverts for jobs that could be suggested, then re-score.
+    R = Rules(cfg)
+    fetched = 0
+    for j in merged.values():
+        j["fit"] = score(j, R)
+        if j["fit"]["hidden"] is None and not j.get("details_fetched") and j["source"] == "Reed" \
+                and fetched < MAX_DETAIL_FETCHES:
+            try:
+                j["details_text"] = reed_details(j)[:6000]
+                j["details_fetched"] = True
+                fetched += 1
+                time.sleep(0.3)
+            except Exception as e:
+                print(f"Reed details {j['id']}: {e}", file=sys.stderr)
+                j["details_fetched"] = True  # don't retry a broken advert every morning
+            j["fit"] = score(j, R)
+        if j["fit"]["show"] and not j.get("summary"):
+            j["summary"] = summarise(j.get("details_text") or j.get("description"))
+        if not j["fit"]["show"]:
+            j.pop("details_text", None) if j["fit"]["hidden"] in ("outside your areas", "not your kind of role") else None
+
+    jobs = sorted(merged.values(), key=lambda j: (j["fit"]["show"], j["fit"]["total"]), reverse=True)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
-        json.dump({"updated": datetime.now(timezone.utc).isoformat(timespec="minutes"), "jobs": jobs}, f, indent=1, ensure_ascii=False)
-    new = sum(1 for j in jobs if j.get("first_seen") == today and j["id"] not in existing)
-    print(f"Wrote {len(jobs)} listings ({new} new).")
+        json.dump({"updated": datetime.now(timezone.utc).isoformat(timespec="minutes"), "jobs": jobs},
+                  f, indent=0, ensure_ascii=False)
+    shown = [j for j in jobs if j["fit"]["show"]]
+    print(f"Wrote {len(jobs)} jobs; {len(shown)} suggested "
+          f"({sum(1 for j in shown if j.get('abroad'))} abroad); fetched {fetched} full adverts.")
 
 
 if __name__ == "__main__":
