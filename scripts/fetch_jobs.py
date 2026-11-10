@@ -473,7 +473,9 @@ def score(job, R):
         bh = hits(a["body_re"], body)
         b = len(bh)
         # In the title, or mentioned repeatedly in the advert using at least two different keywords
-        if not (t or (b >= body_needed and len(set(bh)) >= 2)):
+        # (long adverts mention things like "sustainable" in passing, so they need more evidence)
+        distinct_needed = 2 if len(body) < 1500 else 3
+        if not (t or (b >= body_needed + (1 if len(body) >= 1500 else 0) and len(set(bh)) >= distinct_needed)):
             continue
         if a["title_re"] and not a["title_re"].search(title):
             continue
