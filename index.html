@@ -104,6 +104,7 @@
   .g-bar.open { background: repeating-linear-gradient(45deg, var(--accent-soft), var(--accent-soft) 6px, var(--soft) 6px, var(--soft) 12px); border: 1px dashed var(--accent); }
   .g-bar.closed { background: var(--line); }
   .g-when { position: absolute; top: 12px; font-size: .82rem; font-weight: 600; white-space: nowrap; z-index: 3; }
+  .g-when.inside { color: var(--surface); }
   .g-key { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: .8rem; color: var(--muted); }
   .g-key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
 
@@ -209,10 +210,23 @@ function salary(j) {
   const r = j.salary_min && j.salary_max && j.salary_min !== j.salary_max ? `${money(j.salary_min)}–${money(j.salary_max)}` : money(j.salary_min || j.salary_max);
   return j.salary_predicted ? `${r} (estimate)` : r;
 }
+// Postcode areas across the south of England → the town people know them by
+const POSTCODE_TOWNS = {
+  E: "London", EC: "London", N: "London", NW: "London", SE: "London", SW: "London", W: "London", WC: "London",
+  BR: "Bromley", CR: "Croydon", DA: "Dartford", EN: "Enfield", HA: "Harrow", IG: "Ilford", KT: "Kingston", RM: "Romford",
+  SM: "Sutton", TW: "Twickenham", UB: "Uxbridge", WD: "Watford", AL: "St Albans", HP: "Hemel Hempstead", LU: "Luton", SG: "Stevenage",
+  CM: "Chelmsford", SS: "Southend", CO: "Colchester", RG: "Reading", SL: "Slough", OX: "Oxford", MK: "Milton Keynes", GU: "Guildford",
+  RH: "Redhill", BN: "Brighton", TN: "Tunbridge Wells", ME: "Medway", CT: "Canterbury", PO: "Portsmouth", SO: "Southampton",
+  BH: "Bournemouth", SP: "Salisbury", DT: "Dorchester", BA: "Bath", BS: "Bristol", SN: "Swindon", GL: "Gloucester",
+  TA: "Taunton", EX: "Exeter", TQ: "Torquay", PL: "Plymouth", TR: "Truro",
+};
 function place(j) {
   let loc = (j.location || "").trim();
-  const pc = loc.replace(/\s+/g, "").match(/^([A-Z]{1,2}\d[A-Z\d]?)(\d[A-Z]{2})$/i);
-  if (pc) loc = `${pc[1].toUpperCase()} ${pc[2].toUpperCase()}` + (j.near ? ` (near ${j.near})` : "");
+  const pc = loc.replace(/\s+/g, "").match(/^(([A-Z]{1,2})\d[A-Z\d]?)(\d[A-Z]{2})$/i);
+  if (pc) {
+    const town = POSTCODE_TOWNS[pc[2].toUpperCase()];
+    loc = (town ? town + ", " : "") + `${pc[1].toUpperCase()} ${pc[3].toUpperCase()}`;
+  }
   return loc || "Not given";
 }
 function closing(j) {
@@ -309,7 +323,10 @@ function gantt(pot) {
 
   let ticks = "";
   const t = new Date(from); t.setDate(t.getDate() + ((8 - t.getDay()) % 7 || 7)); // next Monday
-  for (; t < to; t.setDate(t.getDate() + 7)) ticks += `<div class="g-tick" style="left:${pct(t)}%"><span>${fmtDate(t)}</span></div>`;
+  for (; t < to; t.setDate(t.getDate() + 7)) {
+    const nearToday = Math.abs(pct(t) - pct(today)) < 7; // leave room for the "Today" label
+    ticks += `<div class="g-tick" style="left:${pct(t)}%"><span>${nearToday ? "" : fmtDate(t)}</span></div>`;
+  }
   const plainTicks = ticks.replace(/<span>.*?<\/span>/g, "");
   const todayLine = (label) => `<div class="g-today" style="left:${pct(today)}%">${label ? "<span>Today</span>" : ""}</div>`;
 
@@ -318,12 +335,14 @@ function gantt(pot) {
     const cls = !end ? "open" : n < 0 ? "closed" : n <= 7 ? "soon" : n <= 14 ? "closing" : "";
     const barEnd = end || to, left = pct(start), right = pct(barEnd);
     const when = !end ? "No closing date" : n < 0 ? "Closed" : `${fmtDate(end)} · ${n === 0 ? "today" : n === 1 ? "1 day left" : n + " days left"}`;
-    const labelPos = right > 70 ? `right:${100 - left + 1}%` : `left:${right + 1}%`;
+    // Label sits just after the bar, or inside the bar's right end when the bar is long
+    const inside = right > 62 && right - left > 30;
+    const labelPos = inside ? `right:${100 - right + 1.5}%` : `left:${Math.min(right + 1, 62)}%`;
     return `<div class="g-row">
       <div class="g-label"><b title="${esc(j.title)}">${esc(j.title)}</b><span>${esc(j.company || "")}${j.abroad ? " · 🌍" : ""}</span></div>
       <div class="g-track">${plainTicks}${todayLine(false)}
         <div class="g-bar ${cls}" style="left:${left}%;width:${Math.max(right - left, 0.8)}%" title="${esc(when)}"></div>
-        <div class="g-when" style="${labelPos}">${esc(when)}</div>
+        <div class="g-when${inside && cls !== "open" && cls !== "closed" ? " inside" : ""}" style="${labelPos}">${esc(when)}</div>
       </div></div>`;
   }).join("");
   return `<div class="gantt">
@@ -340,7 +359,8 @@ function decide(id, d) {
   else decisions[id] = { d, at: (prev && prev.d === d && prev.at) || today.toISOString().slice(0, 10), snap: snapshot(jobFor(id) || { id }) };
   save();
   lastAction = { id, prev };
-  const j = jobFor(id) || {};
+  const j = { ...(jobFor(id) || {}) };
+  if ((j.title || "").length > 48) j.title = j.title.slice(0, 46) + "…";
   toast(d === "potential" ? `Added “${j.title}” to Potential` : d === "dismissed" ? `Moved “${j.title}” to Not for me` : `Moved “${j.title}” back to New`);
 }
 function toast(msg) {
