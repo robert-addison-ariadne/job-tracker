@@ -7,9 +7,20 @@ You are topping up a personal graduate job-search dashboard with good jobs that 
 - `data/jobs.json`: jobs the feeds already found. **Don't add any job already in here** (same advert URL, or same employer and a very similar title).
 - `data/web_finds.json`: jobs earlier web searches found. Don't add duplicates of these either.
 
-## 2. Search
-Run roughly 20 varied web searches, spread across all five areas and across the south of England (London, Brighton, Kent, Hampshire, Oxford/Reading, Bristol/Bath, Devon), for example:
-- `graduate policy officer charity London`, `communications assistant climate charity`, `social research officer council`, `music marketing assistant London`, `editorial assistant magazine Bristol`, `urban regeneration graduate`, `humanitarian communications officer`, `Civil Service Fast Stream`, `sustainability engagement officer university`.
+## 2. What to look for (priorities)
+1. **Graduate schemes and early-careers programmes from well-known organisations**: these are the person's top priority, and the automatic feeds miss most of them. **Check these every run**, and save any that are open in the south of England (or nationwide):
+   - Public sector: Civil Service Fast Stream, National Graduate Development Programme (NGDP, local government), Houses of Parliament graduate / apprentice schemes, GLA graduate programme, regulators' graduate schemes (Ofcom, Ofgem, Ofwat, CMA, FCA, Electoral Commission, Bank of England *policy* tracks), ONS.
+   - Journalism & media: BBC journalism trainee schemes, Guardian / Scott Trust bursary, Reach plc trainee scheme, PA Media, Reuters, Bloomberg, Financial Times, The Economist, Tortoise, Channel 4 / ITN graduate schemes, Creative Access listings.
+   - Politics, think tanks & public affairs: Institute for Government, IPPR, Resolution Foundation, Centre for Cities, Demos, New Economics Foundation, Joseph Rowntree Foundation, Social Market Foundation, Bright Blue, Fabian Society internships; public affairs agencies' graduate schemes (e.g. Hanover, Portland, Cicero, WPI Strategy, Instinctif).
+   - Social justice, charities & development: Charityworks graduate scheme, Oxfam, Amnesty UK, Save the Children, British Red Cross, Shelter, Crisis, JUSTICE, Liberty, Refugee Council, Citizens Advice, Year Here, Social Finance, NPC.
+   - Music: Sony Music, Universal Music, Warner Music UK graduate / early-careers schemes (marketing, communications or editorial tracks only), PRS Foundation, UK Music.
+2. **Roles in politics, social justice and journalism**: policy and research assistants, parliamentary/MP office roles, caseworkers, campaigns and advocacy officers, editorial assistants, trainee reporters, researchers at think tanks or charities.
+3. Other roles in the five areas from `config.json`.
+
+**Avoid** generic marketing, social-media, content-creator or brand executive roles (only include marketing/comms roles in the music industry), and listings that are not clearly aimed at graduates or early-career candidates.
+
+Run roughly 25 varied searches, spread across these priorities and across the south of England (London, Brighton, Kent, Hampshire, Oxford/Reading, Bristol/Bath, Devon), for example:
+- `NGDP 2027 applications`, `BBC journalism trainee scheme 2027`, `think tank research assistant London`, `parliamentary assistant MP job`, `graduate policy officer charity London`, `campaigns assistant human rights charity`, `editorial assistant magazine Bristol`, `Charityworks 2027`, `Sony Music graduate scheme marketing`.
 
 Good places to find adverts: employers' own careers pages, Civil Service Jobs, local council job pages, CharityJob, Guardian Jobs, w4mpjobs, journalism.co.uk, jobs.ac.uk, Escape the City, Idealist, ReliefWeb, Devex, UN Careers, Music Week / Creative Access / UK Music job boards. **Don't use LinkedIn or Indeed** (their rules don't allow it).
 

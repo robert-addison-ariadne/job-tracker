@@ -432,14 +432,21 @@ class Rules:
         self.areas = [{
             "name": a["name"], "re": kw(a.get("keywords")), "ex": kw(a.get("exclude")),
             # common words (e.g. "community") only count in the job title, not the advert text
-            "body_re": kw([w for w in a.get("keywords", []) if w not in set(a.get("title_only_keywords", []))]),
+            "body_re": None if a.get("title_only") else
+                       kw([w for w in a.get("keywords", []) if w not in set(a.get("title_only_keywords", []))]),
             "title_re": kw(a.get("needs_title_words")), "needs_area": a.get("needs_area"),
+            "needs_scheme": a.get("needs_graduate_scheme", False),
         } for a in cfg.get("areas", [])]
         self.areas.sort(key=lambda a: bool(a["needs_area"]))  # areas that depend on others go last
         r = cfg.get("roles", {})
         self.skills, self.hide_title = kw(r.get("cv_skill_title_words")), kw(r.get("hide_title_words"))
+        self.down, self.down_pts = kw(r.get("downweight_title_words")), r.get("downweight_penalty", 3)
+        self.down_exempt = set(r.get("downweight_exempt_areas", []))
+        self.priority, self.priority_pts = kw(r.get("priority_title_words")), r.get("priority_bonus", 2)
+        self.priority_body = kw(r.get("priority_title_words"))
         L = cfg.get("level", {})
         self.entry, self.senior = kw(L.get("entry_signals")), kw(L.get("senior_signals"))
+        self.scheme = kw(L.get("graduate_scheme_words"))
         self.senior_title = kw(L.get("senior_title_words"))
         self.too_senior, self.hide_salary = L.get("too_senior_salary", 0), L.get("hide_above_salary", 0)
         ex = cfg.get("exclude_locations", {})
@@ -463,6 +470,8 @@ def score(job, R):
     company = (job.get("company") or "").lower()
     text = f"{title} {body}"
     pos, neg, areas, hidden = [], [], [], None
+    # A structured graduate scheme / programme (Higherin labels these; otherwise judge by the title)
+    is_scheme = bool(hits(R.scheme, title)) or (job.get("source") == "Higherin" and job.get("graduate"))
 
     # Which of your areas is it in?
     best, body_needed = 0, 2 if len(body) < 1500 else 3
@@ -481,6 +490,8 @@ def score(job, R):
             continue
         if a["needs_area"] and a["needs_area"] not in areas:
             continue
+        if a["needs_scheme"] and not is_scheme:
+            continue
         areas.append(a["name"])
         best = max(best, t * 2 + b)
     area_pts = 0 if not areas else 3 if best >= 4 else 2 if best >= 2 else 1
@@ -491,13 +502,36 @@ def score(job, R):
     if sk:
         role_pts = 2
         pos.append(f"Uses your skills: {uniq(sk)}")
+    # Your priority topics (politics, social justice, journalism) get a boost...
+    pr = hits(R.priority, title)
+    if pr:
+        role_pts += R.priority_pts
+        pos.append(f"Priority topic: {uniq(pr)}")
+    elif len(set(hits(R.priority_body, body))) >= 3:
+        role_pts += 1
+        pos.append("Priority topics in the advert")
+    # ...and generic marketing / social media roles are turned down (except in music)
+    dn = hits(R.down, title)
+    if dn and not (set(areas) & R.down_exempt):
+        role_pts -= R.down_pts
+        neg.append(f"Marketing / social media role: {uniq(dn)}")
 
-    # Graduate level?
+    # Aimed at graduates / students? Strongest when the title or listing says so.
     level = 0
+    e_title = hits(R.entry, title)
     e = hits(R.entry, text)
-    if e or job.get("graduate"):
-        level += 2
-        pos.append("Graduate / entry level" + (f": {uniq(e)}" if e else ""))
+    if is_scheme:
+        level += 4
+        pos.append("Graduate scheme")
+    elif e_title or job.get("graduate"):
+        level += 3
+        pos.append("Aimed at graduates" + (f": {uniq(e_title)}" if e_title else ""))
+    elif e:
+        level += 1
+        pos.append(f"Entry level hints: {uniq(e)}")
+    else:
+        level -= 1
+        neg.append("Not obviously aimed at graduates")
     s = hits(R.senior, body)
     if s:
         level -= 2

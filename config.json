@@ -16,26 +16,38 @@
     "queries": [
       "policy officer",
       "policy assistant",
+      "policy and research",
       "social research",
       "research officer",
-      "insight analyst",
+      "research assistant",
+      "parliamentary assistant",
+      "caseworker",
+      "public affairs",
+      "campaigns officer",
+      "campaigns assistant",
+      "advocacy officer",
+      "human rights",
+      "social justice",
+      "think tank",
+      "journalist",
+      "trainee journalist",
+      "junior reporter",
+      "news assistant",
+      "editorial assistant",
+      "publishing assistant",
+      "press officer",
       "communications officer",
       "communications assistant",
-      "digital communications",
-      "music marketing",
       "music PR",
-      "journalist",
-      "editorial assistant",
+      "music marketing",
       "sustainability officer",
-      "social value",
       "community engagement",
       "regeneration officer",
       "international development",
       "humanitarian",
       "refugee",
       "civil service",
-      "campaigns officer",
-      "public affairs"
+      "graduate scheme"
     ],
     "_graduate_note": "Also collects the newest jobs Reed has tagged as graduate jobs around each town.",
     "graduate_pass": true,
@@ -45,7 +57,7 @@
   "abroad": {
     "_note": "Jobs outside the UK only show if they score at least min_fit (a strong match), in a different coloured box.",
     "min_fit": 5,
-    "remotive_categories": ["writing", "marketing", "all-others", "project-management"],
+    "remotive_categories": ["writing", "all-others", "project-management"],
     "_reliefweb_note": "ReliefWeb (humanitarian & development jobs worldwide) only runs once a RELIEFWEB_APPNAME secret is added in GitHub.",
     "reliefweb_query": "communications OR policy OR research OR advocacy OR campaigns OR editor OR journalist OR \"social impact\" OR sustainability OR migration",
     "reliefweb_categories": ["Information and Public Affairs", "Advocacy/Communications", "Monitoring and Evaluation", "Program/Project Management"]
@@ -80,16 +92,30 @@
       "exclude": []
     },
     {
-      "name": "Sustainability & social impact",
-      "keywords": ["sustainab*", "climate", "net zero", "net-zero", "environmental", "social justice", "humanitarian", "human rights", "equality", "inequality", "inequalities", "poverty", "international development", "sustainable development", "regeneration", "urban", "urbanism", "town planning", "urban design", "placemaking", "place-making", "housing", "communities", "community", "just transition", "migration", "migrant*", "refugee*", "asylum", "displacement", "social impact", "social value", "esg", "volunteer*", "charity partnership*", "community investment", "circular economy", "biodiversity", "nature recovery", "food security"],
+      "name": "Sustainability & social justice",
+      "keywords": ["sustainab*", "climate", "net zero", "net-zero", "environmental", "social justice", "racial justice", "economic justice", "climate justice", "anti-racism", "anti-poverty", "homelessness", "cost of living", "migrant rights", "civil liberties", "humanitarian", "human rights", "equality", "inequality", "inequalities", "poverty", "international development", "sustainable development", "regeneration", "urban", "urbanism", "town planning", "urban design", "placemaking", "place-making", "housing", "communities", "community", "just transition", "migration", "migrant*", "refugee*", "asylum", "displacement", "social impact", "social value", "esg", "volunteer*", "charity partnership*", "community investment", "circular economy", "biodiversity", "nature recovery", "food security"],
       "_title_only_note": "Everyday words that only count when they are in the job title.",
       "title_only_keywords": ["community", "communities", "housing", "equality", "inequality", "inequalities", "urban", "esg"],
       "exclude": ["business development", "private equity"]
     },
     {
       "name": "Journalism & communications",
-      "title_only_keywords": ["communications", "comms", "content", "news", "writer"],
-      "keywords": ["journalis*", "reporter", "editorial", "editor", "newsroom", "news", "correspondent", "writer", "copywriter", "communications", "comms", "content", "press office*", "media relations", "public relations", "storytelling", "publishing", "podcast*", "broadcast*"],
+      "title_only_keywords": ["communications", "comms", "news", "writer"],
+      "keywords": ["journalis*", "reporter", "editorial", "editor", "newsroom", "news", "correspondent", "writer", "communications", "comms", "press office*", "press officer", "media relations", "public relations", "storytelling", "publishing", "magazine", "podcast*", "broadcast*", "fact-check*"],
+      "exclude": []
+    },
+    {
+      "name": "Politics & public affairs",
+      "keywords": ["politic*", "parliament*", "parliamentary", "westminster", "whitehall", "public affairs", "government affairs", "government relations", "campaign*", "advocacy", "lobbying", "think tank", "democracy", "democratic", "election*", "electoral", "constituency", "caseworker", "mp's office", "member of parliament", "councillor*", "policy"],
+      "title_only_keywords": ["campaign*", "policy", "democratic"],
+      "exclude": []
+    },
+    {
+      "name": "Graduate schemes (policy, strategy & research)",
+      "_note": "Big-organisation graduate schemes whose title points to policy, strategy, research, regulation, communications or social impact work.",
+      "needs_graduate_scheme": true,
+      "title_only": true,
+      "keywords": ["policy", "strategy", "strategic", "regulat*", "economics", "economist*", "research", "consulting", "consultancy", "public sector", "government", "communications", "public relations", "pr", "journalis*", "editorial", "media", "sustainability", "esg", "social", "impact", "network strategy", "fast stream", "insight*"],
       "exclude": []
     },
     {
@@ -103,15 +129,22 @@
       "name": "Not-for-profit (sustainability)",
       "keywords": ["charity", "charities", "charitable", "non-profit", "nonprofit", "not-for-profit", "not for profit", "ngo", "ngos", "social enterprise", "cic", "b corp", "b-corp", "think tank", "foundation", "advocacy"],
       "_needs_area_note": "Only counts when the job is also about sustainability or social impact.",
-      "needs_area": "Sustainability & social impact",
+      "needs_area": "Sustainability & social justice",
       "exclude": []
     }
   ],
 
   "roles": {
     "_note": "Job titles using skills from your CV get a boost. Technical or unrelated titles are hidden.",
-    "cv_skill_title_words": ["policy", "research*", "researcher", "analyst", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "marketing", "digital", "social media", "content", "campaign*", "editorial", "writer", "journalist", "reporter", "project", "programme", "partnerships", "advocacy", "public affairs", "consultation", "impact"],
-    "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic", "practitioner", "project worker", "customer success", "customer service*", "account executive", "account manager", "complaints", "resident services", "service charge", "arboricultur*", "environmental health", "operations", "private equity", "housing officer", "housing support", "tenancy", "lettings", "property", "pensions", "conference producer", "graphic designer", "video editor", "labourer*", "committee member", "board member", "trustee", "business park", "content reviewer", "content moderat*", "professor*", "research fellow*", "fellowship", "postdoc*", "post-doctoral", "postdoctoral", "reader in", "phd", "studentship", "doctoral", "clinical", "cleanroom", "supply chain", "project controls", "audit", "auditor*", "assurance", "nuclear", "investing", "investment*", "risk", "procurement", "tax", "actuar*", "banking", "trading", "operational resilience", "quantity", "commercial"]
+    "cv_skill_title_words": ["policy", "research*", "researcher", "analyst", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "campaign*", "editorial", "writer", "journalist", "reporter", "project", "programme", "partnerships", "advocacy", "public affairs", "consultation", "impact"],
+    "_priority_note": "Your priority topics (politics, social justice, journalism): +2 when in the job title, +1 when the advert is clearly about them.",
+    "priority_title_words": ["politic*", "parliament*", "public affairs", "policy", "campaign*", "advocacy", "think tank", "caseworker", "social justice", "human rights", "equality", "inequality", "refugee*", "migra*", "asylum", "homelessness", "poverty", "humanitarian", "journalis*", "reporter", "editorial", "editor", "news", "correspondent", "publishing", "researcher", "research assistant"],
+    "priority_bonus": 2,
+    "_downweight_note": "Generic marketing / social media roles lose points (not in music, where you want that side).",
+    "downweight_title_words": ["marketing", "marketer", "social media", "content creator", "content executive", "content specialist", "content marketing", "content manager", "content coordinator", "content assistant", "content producer", "brand", "digital marketing", "seo", "ppc", "influencer", "ecommerce", "e-commerce", "copywriter", "creator", "videographer"],
+    "downweight_penalty": 3,
+    "downweight_exempt_areas": ["Music (marketing & comms)"],
+    "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic", "practitioner", "project worker", "customer success", "customer service*", "account executive", "account manager", "complaints", "resident services", "service charge", "arboricultur*", "environmental health", "operations", "private equity", "housing officer", "housing support", "tenancy", "lettings", "property", "pensions", "conference producer", "graphic designer", "video editor", "labourer*", "committee member", "board member", "trustee", "business park", "content reviewer", "content moderat*", "professor*", "research fellow*", "fellowship", "postdoc*", "post-doctoral", "postdoctoral", "reader in", "phd", "studentship", "doctoral", "clinical", "cleanroom", "supply chain", "project controls", "audit", "auditor*", "assurance", "nuclear", "investing", "investment*", "risk", "procurement", "tax", "actuar*", "banking", "trading", "operational resilience", "quantity", "commercial", "technology", "data science", "ai", "underwriting", "reinsurance", "valuation", "forensic", "equity research", "law", "legal", "counsel", "training contract", "people graduate"]
   },
 
   "level": {
@@ -119,6 +152,8 @@
     "entry_signals": ["graduate", "graduates", "junior", "assistant", "trainee", "entry level", "entry-level", "intern", "internship", "placement", "apprentice", "coordinator", "co-ordinator", "no experience", "some experience", "1 year", "one year", "12 months", "6 months", "fast stream", "early careers", "0-2 years", "0 - 2 years"],
     "senior_signals": ["extensive experience", "significant experience", "substantial experience", "3+ years", "4+ years", "5+ years", "proven track record", "line management", "manage a team", "3-4 years", "5-9 years", "10+ years"],
     "senior_title_words": ["manager", "senior", "lead", "principal", "controller", "head"],
+    "_scheme_note": "Titles that mark a structured graduate scheme (Higherin's graduate schemes count too). These get the biggest level boost.",
+    "graduate_scheme_words": ["graduate scheme", "graduate programme", "graduate program", "graduate trainee", "graduate development programme", "graduate rotational", "trainee scheme", "training scheme", "fast stream", "ngdp", "early careers programme"],
     "too_senior_salary": 40000,
     "hide_above_salary": 50000
   },
