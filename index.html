@@ -410,7 +410,12 @@ function renderAll() { renderNew(); renderSeen(); }
 (async function init() {
   load();
   const get = async (path) => { try { const r = await fetch(path, { cache: "no-store" }); if (r.ok) return await r.json(); } catch {} return { jobs: [] }; };
-  const [data, web] = await Promise.all([get("data/jobs.json"), get("data/web_finds.json")]);
+  const [data, web, manual] = await Promise.all([get("data/jobs.json"), get("data/web_finds.json"), get("data/manual.json")]);
+  // Jobs you asked to add by hand always show (unless closed), using the same card layout
+  const todayIso = today.toISOString().slice(0, 10);
+  const manualJobs = (manual.jobs || []).filter((j) => j && j.id && !(j.closes && j.closes < todayIso))
+    .map((j) => ({ fit: { total: 10, areas: [], pos: [], neg: [], hidden: null, show: true }, ...j }));
+  web.jobs = [...manualJobs, ...(web.jobs || [])];
   // Jobs found by the twice-weekly web search sit alongside the feed jobs
   const feedIds = new Set((data.jobs || []).map((j) => j.id));
   jobs = [...(data.jobs || []), ...(web.jobs || []).filter((j) => j && j.id && !feedIds.has(j.id))];

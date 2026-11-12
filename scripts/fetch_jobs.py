@@ -268,6 +268,57 @@ def higherin_details(job):
     return ""
 
 
+def _workday_base(site):
+    return f"https://{site['host']}/wday/cxs/{site['tenant']}/{site['site']}"
+
+
+def fetch_workday(cfg):
+    """Employers' own Workday careers sites (e.g. Universal Music UK, Warner Music)."""
+    out = []
+    for site in cfg.get("workday_sites", []):
+        offset, total, n = 0, 1, 0
+        while offset < min(total, site.get("max_jobs", 200)):
+            body = {"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": site.get("search", "")}
+            try:
+                data = http_json(_workday_base(site) + "/jobs", body=body)
+            except Exception as e:
+                print(f"{site['name']}: {e}", file=sys.stderr)
+                break
+            total = data.get("total") or 0 if offset == 0 else total
+            posts = data.get("jobPostings") or []
+            if not posts:
+                break
+            for p in posts:
+                path = p.get("externalPath") or ""
+                ago = re.search(r"(\d+)\+? Days? Ago", p.get("postedOn") or "")
+                posted = (TODAY - timedelta(days=int(ago.group(1)))).isoformat() if ago else \
+                    TODAY.isoformat() if "Today" in (p.get("postedOn") or "") else \
+                    (TODAY - timedelta(days=1)).isoformat() if "Yesterday" in (p.get("postedOn") or "") else ""
+                n += 1
+                out.append({
+                    "id": f"workday-{site['tenant']}-{path.rsplit('_', 1)[-1]}", "source": site["name"],
+                    "workday": {"base": _workday_base(site), "path": path},
+                    "title": one_line(p.get("title"), 200), "company": site["name"],
+                    "location": p.get("locationsText") or "", "country": "United Kingdom", "abroad": False,
+                    "check_south": True, "posted": posted, "closes": "",
+                    "url": f"https://{site['host']}/{site['site']}{path}",
+                    "description": "", "part_time": "part" in (p.get("timeType") or "").lower(),
+                })
+            offset += 20
+            time.sleep(1)
+        print(f"{site['name']}: {n}")
+    return out
+
+
+def workday_details(job):
+    info = http_json(job["workday"]["base"] + job["workday"]["path"]).get("jobPostingInfo", {})
+    if info.get("endDate"):
+        job["closes"] = parse_date(info["endDate"])
+    if info.get("startDate"):
+        job["posted"] = parse_date(info["startDate"])
+    return html_to_text(info.get("jobDescription"))
+
+
 def fetch_adzuna(cfg):
     app_id, app_key = os.environ.get("ADZUNA_APP_ID"), os.environ.get("ADZUNA_APP_KEY")
     if not (app_id and app_key):
@@ -442,6 +493,8 @@ class Rules:
         self.skills, self.hide_title = kw(r.get("cv_skill_title_words")), kw(r.get("hide_title_words"))
         self.down, self.down_pts = kw(r.get("downweight_title_words")), r.get("downweight_penalty", 3)
         self.down_exempt = set(r.get("downweight_exempt_areas", []))
+        # words that normally hide a job, but are fine inside the music industry (e.g. "commercial")
+        self.music_ok = {w.lower() for w in r.get("allowed_in_music", [])}
         self.priority, self.priority_pts = kw(r.get("priority_title_words")), r.get("priority_bonus", 2)
         self.priority_body = kw(r.get("priority_title_words"))
         L = cfg.get("level", {})
@@ -578,7 +631,7 @@ def score(job, R):
     loc = job.get("location") or ""
     if company in R.blocked:
         hidden = "blocked employer"
-    elif hits(R.hide_title, title):
+    elif set(hits(R.hide_title, title)) - (R.music_ok if set(areas) & R.down_exempt else set()):
         hidden = "not your kind of role"
     elif not areas:
         hidden = "outside your areas"
@@ -621,7 +674,7 @@ def main():
     title_block = kw(words)
     fresh, keys = {}, {}
     for j in fetch_reed(cfg) + fetch_adzuna(cfg) + fetch_universities(cfg) + fetch_higherin(cfg) \
-            + fetch_reliefweb(cfg) + fetch_remotive(cfg):
+            + fetch_workday(cfg) + fetch_reliefweb(cfg) + fetch_remotive(cfg):
         if title_block and title_block.search(j["title"]):
             continue
         if j["id"] in fresh:
@@ -639,6 +692,9 @@ def main():
         prev = existing.get(jid, {})
         for k in ("summary", "details_text", "details_fetched", "part_time"):
             if k in prev and k not in j:
+                j[k] = prev[k]
+        for k in ("closes", "posted"):  # dates learnt from the full advert on an earlier day
+            if not j.get(k) and prev.get(k):
                 j[k] = prev[k]
         j["graduate"] = j.get("graduate") or prev.get("graduate", False)
         j["first_seen"] = prev.get("first_seen", today)
@@ -661,10 +717,12 @@ def main():
             j["source"] == "Higherin" and j["fit"]["hidden"] == "outside your areas"
             and R.south and R.south.search(j.get("location") or "")
             and not hits(R.hide_title, (j.get("title") or "").lower()))
-        if maybe and not j.get("details_fetched") and j["source"] in ("Reed", "Higherin") \
+        if maybe and not j.get("details_fetched") and (j["source"] in ("Reed", "Higherin") or j.get("workday")) \
                 and fetched < MAX_DETAIL_FETCHES:
             try:
-                j["details_text"] = (reed_details(j) if j["source"] == "Reed" else higherin_details(j))[:6000]
+                fetch_details = reed_details if j["source"] == "Reed" else workday_details if j.get("workday") \
+                    else higherin_details
+                j["details_text"] = fetch_details(j)[:6000]
                 j["details_fetched"] = True
                 fetched += 1
                 time.sleep(0.3 if j["source"] == "Reed" else 1.5)

@@ -1,4 +1,37 @@
 {
-  "_readme": "Roles you find yourself (LinkedIn, company sites, friends). Only title, company and url are required. Copy the shape of this example: {\"id\": \"manual-1\", \"title\": \"...\", \"company\": \"...\", \"location\": \"...\", \"url\": \"https://...\", \"description\": \"...\", \"notes\": \"...\"}",
-  "jobs": []
+  "_readme": "Jobs you've asked to add by hand. They always appear on the dashboard (until you tick them or they close).",
+  "jobs": [
+    {
+      "id": "manual-umg-27761",
+      "source": "Added by you",
+      "title": "Commercial Analyst",
+      "company": "Universal Music UK",
+      "location": "King's Cross, London",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "Not given",
+      "posted": "2026-11-05",
+      "closes": "",
+      "url": "https://umusic.wd5.myworkdayjobs.com/UMGUK/job/Kings-Cross-London/Commercial-Analyst_UMG-27761",
+      "summary": "Universal Music is the world's leading music company, and this full-time role sits in a team providing commercial analysis and operational support across its global business. Day to day you'd analyse revenue, user and market trends from streaming platforms, reconcile label revenue for major artists (including K-pop acts like BTS and Stray Kids), and build dashboards and reports. A big part of the job is explaining what the numbers mean to colleagues, turning complex analysis into clear commercial insight. They want a degree in a relevant field and experience with tools like SQL, Python, BigQuery and Excel.",
+      "first_seen": "2026-11-12",
+      "fit": { "total": 8, "areas": ["Music (marketing & comms)"], "pos": ["Added by you"], "neg": [], "hidden": null, "show": true }
+    },
+    {
+      "id": "manual-wmg-r-028691",
+      "source": "Added by you",
+      "title": "Marketing Assistant, Warner Records Label Group (6 month temp)",
+      "company": "Warner Music Group",
+      "location": "27 Wrights Lane, Kensington, London",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "Not given",
+      "posted": "2026-10-30",
+      "closes": "2026-11-14",
+      "url": "https://wmg.wd1.myworkdayjobs.com/en-US/WMGGLOBAL/details/Marketing-Assistant--Warner-Records-Label-Group--6-month-Temp-_R-028691",
+      "summary": "Warner Records Label Group, part of Warner Music Group, is looking for a Marketing Assistant to join its award-winning marketing team on a six-month temporary contract. You'd support artist campaigns day to day, coordinating release schedules, marketing trackers, creative briefs, invoices and budgets, and spotting cultural and social media trends. It's described as an admin-heavy role, so they want someone organised and proactive who is passionate about music and how artists connect with fans. It's full time and based in the London office at least four days a week.",
+      "first_seen": "2026-11-12",
+      "fit": { "total": 9, "areas": ["Music (marketing & comms)"], "pos": ["Added by you"], "neg": [], "hidden": null, "show": true }
+    }
+  ]
 }

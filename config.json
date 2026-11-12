@@ -47,7 +47,10 @@
       "humanitarian",
       "refugee",
       "civil service",
-      "graduate scheme"
+      "graduate scheme",
+      "record label",
+      "music industry",
+      "music assistant"
     ],
     "_graduate_note": "Also collects the newest jobs Reed has tagged as graduate jobs around each town.",
     "graduate_pass": true,
@@ -80,15 +83,22 @@
   "_higherin_note": "Higherin (student and graduate jobs) has no official feed; its public graduate and internship pages are read once a day.",
   "higherin": { "categories": ["graduates", "internships"], "max_pages": 40 },
 
+  "_workday_note": "Employers' own careers sites on Workday, read once a day. Only jobs in the south of England are kept.",
+  "workday_sites": [
+    { "name": "Universal Music UK", "host": "umusic.wd5.myworkdayjobs.com", "tenant": "umusic", "site": "UMGUK", "search": "" },
+    { "name": "Warner Music Group", "host": "wmg.wd1.myworkdayjobs.com", "tenant": "wmg", "site": "WMGGLOBAL", "search": "London" }
+  ],
+
   "_south_note": "For sources that list jobs across the whole UK (Higherin), only jobs mentioning one of these places are kept.",
   "south_of_england_places": ["london", "south east", "south west", "southern england", "brighton", "hove", "kent", "canterbury", "maidstone", "medway", "tunbridge wells", "ashford", "sussex", "crawley", "chichester", "worthing", "eastbourne", "surrey", "guildford", "woking", "egham", "epsom", "redhill", "hampshire", "southampton", "portsmouth", "winchester", "basingstoke", "farnborough", "isle of wight", "dorset", "bournemouth", "poole", "berkshire", "reading", "slough", "bracknell", "newbury", "windsor", "oxford", "oxfordshire", "buckinghamshire", "high wycombe", "milton keynes", "hertfordshire", "st albans", "watford", "essex", "chelmsford", "wiltshire", "salisbury", "swindon", "bristol", "bath", "somerset", "gloucester", "cheltenham", "devon", "exeter", "plymouth", "cornwall", "truro", "nationwide", "national", "various locations", "multiple locations", "uk wide", "uk-wide", "across the uk", "remote"],
 
   "areas": [
     {
       "name": "Music (marketing & comms)",
-      "keywords": ["music", "musician*", "record label", "record labels", "a&r", "festival*", "live music", "gig", "gigs", "streaming", "recording artist*", "artist management", "radio", "podcast*", "venue", "venues"],
-      "_needs_role_note": "Only counts if the job title is on the marketing, communications or journalism side.",
-      "needs_title_words": ["marketing", "digital", "social media", "content", "communications", "comms", "pr", "press", "publicity", "journalist", "journalism", "editorial", "editor", "writer", "campaign*", "brand", "partnerships", "community", "audience*", "fan", "promotion*", "marketer"],
+      "_keywords_note": "Music words, plus major and independent labels, publishers and music bodies whose names don't include 'music'.",
+      "keywords": ["music", "musician*", "record label", "record labels", "a&r", "festival*", "live music", "gig", "gigs", "streaming", "recording artist*", "artist management", "artist services", "radio", "podcast*", "label group", "umg", "warner records", "atlantic records", "parlophone", "island records", "polydor", "emi", "decca", "virgin music", "columbia records", "rca", "bmg", "beggars", "xl recordings", "domino recording*", "ninja tune", "warp", "kobalt", "the orchard", "spotify", "deezer", "soundcloud", "live nation", "aeg presents", "prs for music", "ppl", "bpi", "ivors academy", "festival republic", "academy music group"],
+      "_needs_role_note": "Only counts if the job title is on the marketing, communications, journalism or commercial / label side (not technical).",
+      "needs_title_words": ["marketing", "digital", "social media", "content", "communications", "comms", "pr", "press", "publicity", "journalist", "journalism", "editorial", "editor", "writer", "campaign*", "brand", "partnerships", "community", "audience*", "fan", "promotion*", "marketer", "commercial", "analyst", "insight*", "strategist", "assistant", "coordinator", "co-ordinator", "executive", "a&r", "label", "artist", "release*", "catalogue", "sync", "licensing", "streaming", "trainee", "graduate", "intern*"],
       "exclude": []
     },
     {
@@ -137,6 +147,8 @@
     "downweight_title_words": ["marketing", "marketer", "social media", "content creator", "content executive", "content specialist", "content marketing", "content manager", "content coordinator", "content assistant", "content producer", "brand", "digital marketing", "seo", "ppc", "influencer", "ecommerce", "e-commerce", "copywriter", "creator", "videographer"],
     "downweight_penalty": 3,
     "downweight_exempt_areas": ["Music (marketing & comms)"],
+    "_allowed_in_music_note": "Words that normally hide a job but are fine at a music company (e.g. a label's Commercial Analyst).",
+    "allowed_in_music": ["commercial", "analytics", "operations"],
     "hide_title_words": ["engineer*", "engineering", "chemist*", "chemistry", "scientist*", "laboratory", "lab", "technician*", "technical", "ecologist*", "surveyor*", "electrical", "mechanical", "hvac", "cad", "developer", "software", "programmer", "devops", "sound", "audio", "lighting", "rigger", "driver*", "operative*", "accountant*", "accounts", "bookkeeper", "finance", "financial", "payroll", "teacher*", "teaching", "tutor*", "lecturer", "sales", "nurse*", "nursing", "carer*", "care", "support worker*", "chef*", "cleaner*", "warehouse", "recruitment consultant", "recruiter*", "it support", "cyber", "solicitor*", "paralegal", "lawyer", "receptionist", "plumber*", "electrician*", "mechanic*", "estimator", "health & safety", "health and safety", "hse", "gis", "geospatial", "cartograph*", "data engineer*", "transport planner", "transport modeller", "enforcement", "traffic", "practitioner", "project worker", "customer success", "customer service*", "account executive", "account manager", "complaints", "resident services", "service charge", "arboricultur*", "environmental health", "operations", "private equity", "housing officer", "housing support", "tenancy", "lettings", "property", "pensions", "conference producer", "graphic designer", "video editor", "labourer*", "committee member", "board member", "trustee", "business park", "content reviewer", "content moderat*", "professor*", "research fellow*", "fellowship", "postdoc*", "post-doctoral", "postdoctoral", "reader in", "phd", "studentship", "doctoral", "clinical", "cleanroom", "supply chain", "project controls", "audit", "auditor*", "assurance", "nuclear", "investing", "investment*", "risk", "procurement", "tax", "actuar*", "banking", "trading", "operational resilience", "quantity", "commercial", "technology", "data science", "ai", "underwriting", "reinsurance", "valuation", "forensic", "equity research", "law", "legal", "counsel", "training contract", "people graduate", "hr", "human resources", "research and development", "r&d", "operational research", "analytics", "decision modelling", "implementation services"]
   },
 
