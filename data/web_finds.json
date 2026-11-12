@@ -1,1 +1,21 @@
-{"updated": null, "jobs": []}
+{
+  "updated": "2026-11-12T11:00:00Z",
+  "jobs": [
+    {
+      "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
+      "source": "Web search",
+      "title": "Journalist Apprenticeship – Level 6 (BBC Three Counties Radio)",
+      "company": "BBC",
+      "location": "Dunstable, Bedfordshire (on-site)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£26,000 a year",
+      "posted": "2026-11-04",
+      "closes": "2026-11-24",
+      "url": "https://www.findapprenticeship.service.gov.uk/apprenticeship/VAC2000062222",
+      "summary": "The BBC is recruiting Level 6 journalist apprentices for a September 2027 start, and this place is based at BBC Three Counties Radio in Dunstable. It's a full-time, paid route into BBC News, where you'd learn to find, research, write and broadcast stories while working towards a degree-level journalism qualification. The listing doesn't ask for a degree, but a strong graduate with research and communication experience would stand out. Dunstable is just north of the London search area, about 40 minutes from London by train.",
+      "first_seen": "2026-11-12",
+      "fit": { "total": 8, "areas": ["Journalism & communications"], "pos": ["Graduate-level training scheme"], "neg": [], "hidden": null, "show": true }
+    }
+  ]
+}
