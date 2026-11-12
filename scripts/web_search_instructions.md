@@ -17,6 +17,8 @@ You are topping up a personal graduate job-search dashboard with good jobs that 
 2. **Roles in politics, social justice and journalism**: policy and research assistants, parliamentary/MP office roles, caseworkers, campaigns and advocacy officers, editorial assistants, trainee reporters, researchers at think tanks or charities.
 3. Other roles in the five areas from `config.json`.
 
+**Only include graduate schemes from organisations that themselves fit the person's areas**: public bodies and regulators, Parliament, local government, news and media organisations, think tanks, public affairs agencies, charities and NGOs, social-impact and sustainability organisations, and music companies. **Do not include** graduate schemes from banks, insurers, accountancy / audit / tax firms, general management or technology consultancies (e.g. EY, Deloitte, PwC, KPMG, Accenture), defence, engineering, construction or property companies, even if the scheme mentions strategy, research or sustainability.
+
 **Avoid** generic marketing, social-media, content-creator or brand executive roles (only include marketing/comms roles in the music industry), and listings that are not clearly aimed at graduates or early-career candidates.
 
 Run roughly 25 varied searches, spread across these priorities and across the south of England (London, Brighton, Kent, Hampshire, Oxford/Reading, Bristol/Bath, Devon), for example:

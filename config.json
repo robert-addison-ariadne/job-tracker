@@ -111,18 +111,11 @@
       "exclude": []
     },
     {
-      "name": "Graduate schemes (policy, strategy & research)",
-      "_note": "Big-organisation graduate schemes whose title points to policy, strategy, research, regulation, communications or social impact work.",
-      "needs_graduate_scheme": true,
-      "title_only": true,
-      "keywords": ["policy", "strategy", "strategic", "regulat*", "economics", "economist*", "research", "consulting", "consultancy", "public sector", "government", "communications", "public relations", "pr", "journalis*", "editorial", "media", "sustainability", "esg", "social", "impact", "network strategy", "fast stream", "insight*"],
-      "exclude": []
-    },
-    {
       "name": "Public sector",
-      "keywords": ["civil service", "civil servant*", "government", "home office", "cabinet office", "department for", "ministry", "hm treasury", "hmrc", "defra", "desnz", "mhclg", "office for national statistics", "local authority", "council", "borough", "county council", "city council", "combined authority", "greater london authority", "parliament", "public sector", "mayor of", "mayoral"],
+      "_graduate_schemes_note": "Graduate schemes only appear when the organisation and role fit one of your areas, e.g. a regulator's policy scheme yes, a consultancy's or bank's scheme no.",
+      "keywords": ["civil service", "civil servant*", "government", "home office", "cabinet office", "department for", "ministry", "hm treasury", "hmrc", "defra", "desnz", "mhclg", "office for national statistics", "local authority", "council", "borough", "county council", "city council", "combined authority", "greater london authority", "parliament", "public sector", "mayor of", "mayoral", "financial conduct authority", "fca", "ofcom", "ofgem", "ofwat", "ofsted", "competition and markets authority", "electoral commission", "environment agency", "natural england", "national audit office", "bank of england", "nhs england", "uk research and innovation"],
       "_needs_role_note": "Only counts for roles using skills from your CV (policy, research, analysis, strategy, engagement, communications).",
-      "needs_title_words": ["policy", "research*", "researcher", "analyst", "analysis", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "consultation", "public affairs", "partnerships", "intelligence", "fast stream"],
+      "needs_title_words": ["policy", "research*", "researcher", "analyst", "analysis", "insight*", "evidence", "strategy", "strategic", "engagement", "stakeholder", "communications", "comms", "consultation", "public affairs", "partnerships", "intelligence", "fast stream", "regulat*", "economics", "economist*"],
       "exclude": []
     },
     {

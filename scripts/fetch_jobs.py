@@ -474,6 +474,7 @@ def score(job, R):
     is_scheme = bool(hits(R.scheme, title)) or (job.get("source") == "Higherin" and job.get("graduate"))
 
     # Which of your areas is it in?
+    title_areas = []
     best, body_needed = 0, 2 if len(body) < 1500 else 3
     for a in R.areas:
         if a["ex"] and a["ex"].search(text):
@@ -493,7 +494,12 @@ def score(job, R):
         if a["needs_scheme"] and not is_scheme:
             continue
         areas.append(a["name"])
+        if t:
+            title_areas.append(a["name"])
         best = max(best, t * 2 + b)
+    # Graduate schemes must fit your areas by their title or organisation, not a passing mention in the advert
+    if is_scheme and not title_areas:
+        areas = []
     area_pts = 0 if not areas else 3 if best >= 4 else 2 if best >= 2 else 1
 
     # Is it your kind of role?
