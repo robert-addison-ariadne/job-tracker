@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T11:00:00Z",
+  "updated": "2026-11-12T11:40:32Z",
   "jobs": [
     {
       "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
@@ -15,7 +15,101 @@
       "url": "https://www.findapprenticeship.service.gov.uk/apprenticeship/VAC2000062222",
       "summary": "The BBC is recruiting Level 6 journalist apprentices for a September 2027 start, and this place is based at BBC Three Counties Radio in Dunstable. It's a full-time, paid route into BBC News, where you'd learn to find, research, write and broadcast stories while working towards a degree-level journalism qualification. The listing doesn't ask for a degree, but a strong graduate with research and communication experience would stand out. Dunstable is just north of the London search area, about 40 minutes from London by train.",
       "first_seen": "2026-11-12",
-      "fit": { "total": 8, "areas": ["Journalism & communications"], "pos": ["Graduate-level training scheme"], "neg": [], "hidden": null, "show": true }
+      "fit": {
+        "total": 8,
+        "areas": [
+          "Journalism & communications"
+        ],
+        "pos": [
+          "Graduate-level training scheme"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-alex-mcintyre-mp-parliamentary-assistant",
+      "source": "Web search",
+      "title": "Parliamentary Assistant",
+      "company": "Alex McIntyre MP (Gloucester)",
+      "location": "London (Westminster office)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£31,000 – £35,000",
+      "posted": "2026-11-10",
+      "closes": "2026-11-27",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100716",
+      "summary": "Alex McIntyre is the Labour MP for Gloucester and this is a permanent post in his Westminster office. The assistant researches parliamentary business, drafts briefings, speeches, press releases and parliamentary questions, and supports casework and communications. They want someone with some experience of politics or writing briefings, strong written communication and Labour values. Applications go by email with a CV and cover letter, interviews are in early December, and the start date is as soon as possible in the New Year.",
+      "first_seen": "2026-11-12",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Research and briefing writing"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-dods-political-intelligence-junior-consultant",
+      "source": "Web search",
+      "title": "Junior Political Intelligence Consultant",
+      "company": "Dods Political Intelligence",
+      "location": "London (hybrid, 2-3 days in office)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£28,860 – £30,385",
+      "posted": "2026-11-11",
+      "closes": "2026-11-18",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100725",
+      "summary": "Dods Political Intelligence provides political monitoring and analysis to clients across many sectors. The junior consultant covers the Home Affairs, Justice, Welfare and Equalities portfolio, producing daily analysis of government and Parliament and working with a team of policy specialists. They are looking for someone passionate about policy and politics, with no set years of experience listed. It is a permanent role, applications close 18 November and interviews start the week of 23 November.",
+      "first_seen": "2026-11-12",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Policy analysis",
+          "Home Office portfolio overlaps with placement"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-damien-egan-mp-caseworker-bristol-ne",
+      "source": "Web search",
+      "title": "Caseworker",
+      "company": "Damien Egan MP (Bristol North East)",
+      "location": "Bristol North East (constituency office, in person)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "",
+      "posted": "2026-11-10",
+      "closes": "2026-11-24",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100718",
+      "summary": "Damien Egan is the Labour MP for Bristol North East and this is a permanent full-time post in his constituency office. The caseworker handles constituent enquiries on issues such as housing, immigration and benefits, corresponds with agencies, and supports surgeries, campaigns and events. They want strong written and verbal communication and a sympathetic manner, with advice or advocacy experience preferred. Salary follows IPSA guidelines, interviews are on 2 December, and applications go by email.",
+      "first_seen": "2026-11-12",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Politics & public affairs",
+          "Sustainability & social justice"
+        ],
+        "pos": [
+          "Casework on housing and immigration"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
     }
   ]
 }
