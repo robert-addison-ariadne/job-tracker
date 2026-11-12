@@ -417,8 +417,11 @@ function renderAll() { renderNew(); renderSeen(); }
     .map((j) => ({ fit: { total: 10, areas: [], pos: [], neg: [], hidden: null, show: true }, ...j }));
   web.jobs = [...manualJobs, ...(web.jobs || [])];
   // Jobs found by the twice-weekly web search sit alongside the feed jobs
-  const feedIds = new Set((data.jobs || []).map((j) => j.id));
-  jobs = [...(data.jobs || []), ...(web.jobs || []).filter((j) => j && j.id && !feedIds.has(j.id))];
+  // If a job you added (or the web search found) is also in the feeds, show it once, keeping your version
+  const sameJob = (j) => (j.company || "").toLowerCase().replace(/[^a-z0-9]/g, "") + "|" + (j.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const extra = (web.jobs || []).filter((j) => j && j.id);
+  const extraKeys = new Set(extra.map(sameJob)), extraIds = new Set(extra.map((j) => j.id));
+  jobs = [...extra, ...(data.jobs || []).filter((j) => !extraIds.has(j.id) && !extraKeys.has(sameJob(j)))];
   byId = Object.fromEntries(jobs.map((j) => [j.id, j]));
   // keep saved snapshots fresh while the job is still listed
   for (const [id, v] of Object.entries(decisions)) if (byId[id]) v.snap = snapshot(byId[id]);
