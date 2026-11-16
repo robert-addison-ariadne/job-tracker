@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T11:40:32Z",
+  "updated": "2026-11-16T06:10:03Z",
   "jobs": [
     {
       "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
@@ -105,6 +105,120 @@
         ],
         "pos": [
           "Casework on housing and immigration"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-bridget-phillipson-mp-parliamentary-assistant",
+      "source": "Web search",
+      "title": "Parliamentary Assistant",
+      "company": "Bridget Phillipson MP (Houghton and Sunderland South)",
+      "location": "London (Westminster office)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£33,000",
+      "posted": "2026-11-13",
+      "closes": "2026-11-27",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100744",
+      "summary": "Bridget Phillipson is the Labour MP for Houghton and Sunderland South and this is a permanent full-time post in her Westminster office. The assistant drafts speeches, press releases and briefings, tracks legislation, carries out research and manages the diary and events. They want a proactive writer with strong communication skills and an interest in policy, and parliamentary experience is ideal but not essential. Interviews are the week of 7 December with written tasks, the start is January 2027, and applications go by email.",
+      "first_seen": "2026-11-16",
+      "fit": {
+        "total": 8,
+        "areas": [
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Briefings, research and communications",
+          "Policy interest"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-runnymede-trust-research-policy-associate",
+      "source": "Web search",
+      "title": "Research and Policy Associate",
+      "company": "Runnymede Trust",
+      "location": "London (hybrid, 2 days a week in office)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£39,389",
+      "posted": "2026-11-12",
+      "closes": "2026-12-06",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100733",
+      "summary": "Runnymede Trust is a race equality think tank that produces research and policy influence on inequality. The associate supports research projects, carries out qualitative and quantitative research and evidence synthesis, and writes reports, policy briefings and consultation responses. They are keen on experience in wealth inequality, poverty and economic justice, and the work also covers migration and community safety. It is a permanent hybrid role, with interviews likely in the weeks of 14 or 21 December, and applications go through CharityJob.",
+      "first_seen": "2026-11-16",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Sustainability & social justice",
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Inequality and migration research",
+          "Evidence synthesis like the Home Office placement"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-helio-intelligence-policy-analyst",
+      "source": "Web search",
+      "title": "Policy Analyst",
+      "company": "Helio Intelligence",
+      "location": "London",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£29,000+",
+      "posted": "2026-11-13",
+      "closes": "2026-12-31",
+      "url": "https://heliointelligence.careers.hibob.com/jobs/f6beb493-333e-481b-979f-72c5eb02a9f1/apply",
+      "summary": "Helio Intelligence provides political monitoring and intelligence to clients. The analyst covers Parliament, committees and government announcements, researches government priorities and legislation, and writes alerts, reports and briefings, acting as first contact for a client portfolio. They want a graduate with at least a year in a political, public affairs or policy role, which the Home Office placement would cover, plus strong writing and client-facing skills. It is a permanent London role starting as soon as possible, applied for through an online form.",
+      "first_seen": "2026-11-16",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Policy analysis and briefings",
+          "Client engagement"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-daisy-cooper-mp-caseworker-st-albans",
+      "source": "Web search",
+      "title": "Caseworker",
+      "company": "Daisy Cooper MP (St Albans)",
+      "location": "St Albans (some hybrid)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£28,000 – £32,000",
+      "posted": "2026-11-12",
+      "closes": "2026-11-26",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100732",
+      "summary": "Daisy Cooper is the Liberal Democrat MP for St Albans and this is a permanent post in her constituency office. The caseworker manages constituents' cases on immigration, housing, welfare and public services, liaises with departments and councils, drafts correspondence and researches local and national issues. They want excellent written and verbal communication, research skills and sensitivity, with no set years of experience. Applications close at 1pm on 26 November by email with a CV and covering letter, and interviews are on 3 December.",
+      "first_seen": "2026-11-16",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Politics & public affairs",
+          "Sustainability & social justice"
+        ],
+        "pos": [
+          "Casework on housing and immigration",
+          "Research and correspondence"
         ],
         "neg": [],
         "hidden": null,
