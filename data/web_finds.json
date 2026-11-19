@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-16T06:10:03Z",
+  "updated": "2026-11-19T06:09:50Z",
   "jobs": [
     {
       "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
@@ -49,34 +49,6 @@
         ],
         "pos": [
           "Research and briefing writing"
-        ],
-        "neg": [],
-        "hidden": null,
-        "show": true
-      }
-    },
-    {
-      "id": "web-dods-political-intelligence-junior-consultant",
-      "source": "Web search",
-      "title": "Junior Political Intelligence Consultant",
-      "company": "Dods Political Intelligence",
-      "location": "London (hybrid, 2-3 days in office)",
-      "country": "United Kingdom",
-      "abroad": false,
-      "salary_text": "£28,860 – £30,385",
-      "posted": "2026-11-11",
-      "closes": "2026-11-18",
-      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100725",
-      "summary": "Dods Political Intelligence provides political monitoring and analysis to clients across many sectors. The junior consultant covers the Home Affairs, Justice, Welfare and Equalities portfolio, producing daily analysis of government and Parliament and working with a team of policy specialists. They are looking for someone passionate about policy and politics, with no set years of experience listed. It is a permanent role, applications close 18 November and interviews start the week of 23 November.",
-      "first_seen": "2026-11-12",
-      "fit": {
-        "total": 7,
-        "areas": [
-          "Politics & public affairs"
-        ],
-        "pos": [
-          "Policy analysis",
-          "Home Office portfolio overlaps with placement"
         ],
         "neg": [],
         "hidden": null,
@@ -221,6 +193,102 @@
           "Research and correspondence"
         ],
         "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-impact-local-government-graduate-programme-cohort-29",
+      "source": "Web search",
+      "title": "Impact: The Local Government Graduate Programme (Cohort 29)",
+      "company": "Local Government Association (Impact graduate programme, formerly NGDP)",
+      "location": "Councils across England and Wales (national applications)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "About £33,673 (varies by council)",
+      "posted": "",
+      "closes": "2027-01-06",
+      "url": "https://www.local.gov.uk/national-graduate-development-programme/ngdp-candidates/ngdp-application",
+      "summary": "Impact is the flagship fast-track graduate scheme into local government, run by the Local Government Association with partner councils in England and Wales. Graduates do a two-year paid management trainee programme with at least three placements across a council, including one in the Chief Executive's Office, plus a funded management qualification. They want final-year students or graduates with a 2:2 or above by summer 2027 and the right to work in the UK. Applications close at midday on 6 January 2027, start with an online situational judgement test, and the autumn 2027 intake means you only get one Impact application per year, with some council places limited to local residents.",
+      "first_seen": "2026-11-19",
+      "fit": {
+        "total": 8,
+        "areas": [
+          "Public sector",
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Big-organisation graduate scheme",
+          "Policy and strategy placements",
+          "Fits a summer 2027 graduation"
+        ],
+        "neg": [
+          "Some places need a local connection"
+        ],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-peter-swallow-mp-caseworker-bracknell",
+      "source": "Web search",
+      "title": "Caseworker",
+      "company": "Peter Swallow MP (Bracknell)",
+      "location": "Bracknell",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£26,500 – £32,000",
+      "posted": "2026-11-17",
+      "closes": "2026-12-10",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100772",
+      "summary": "Peter Swallow is the Labour MP for Bracknell and this is a permanent post in his constituency office. The caseworker handles constituents' queries and more complex cases on issues such as housing and SEND, drafts replies, researches the subject areas and reports on enquiry trends to the MP. They want strong writing and communication, analytical skills and sensitivity, and casework experience is desirable but not essential. It is 4 or 5 days a week, interviews are in Bracknell on 18 or 21 December, and applications go by email with a CV and covering letter.",
+      "first_seen": "2026-11-19",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Politics & public affairs",
+          "Sustainability & social justice"
+        ],
+        "pos": [
+          "Casework and research",
+          "Written communication",
+          "Does not require prior casework"
+        ],
+        "neg": [
+          "Wants a start soon after December interviews, before graduation"
+        ],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-carers-uk-policy-and-public-affairs-officer",
+      "source": "Web search",
+      "title": "Policy and Public Affairs Officer",
+      "company": "Carers UK",
+      "location": "London",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£33,668 (includes Inner London weighting)",
+      "posted": "2026-11-18",
+      "closes": "2026-12-10",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100777",
+      "summary": "Carers UK is the national charity that campaigns for and supports unpaid carers. The policy and public affairs officer monitors and analyses policy developments, works on key policy and campaign projects and engages with carers. The advert lists no set experience, so it suits someone with strong research and communication skills, though it may favour candidates with some policy experience. It is a permanent full-time London post, with a remote first interview in early January and an in-person second stage; apply through the Carers UK website.",
+      "first_seen": "2026-11-19",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Politics & public affairs",
+          "Sustainability & social justice"
+        ],
+        "pos": [
+          "Policy analysis and public affairs",
+          "Draws on Home Office research experience",
+          "Charity campaigns"
+        ],
+        "neg": [
+          "Experience requirements not stated"
+        ],
         "hidden": null,
         "show": true
       }
