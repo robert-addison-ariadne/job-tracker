@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19T06:09:50Z",
+  "updated": "2026-11-23T06:09:29Z",
   "jobs": [
     {
       "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
@@ -289,6 +289,92 @@
         "neg": [
           "Experience requirements not stated"
         ],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-money-mental-health-policy-institute-external-affairs-intern",
+      "source": "Web search",
+      "title": "External Affairs Intern",
+      "company": "Money and Mental Health Policy Institute",
+      "location": "London",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£30,128 a year (pro rata for six months)",
+      "posted": "2026-11-17",
+      "closes": "2026-12-03",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100767",
+      "summary": "The Money and Mental Health Policy Institute is a research and policy charity working to break the link between financial difficulty and mental health problems. This six-month paid training post covers public affairs, campaigning, digital content and events, with structured support for learning. They want someone with confident writing and speaking who can tailor their message to different audiences, and no prior experience is required. It is based in London, with interviews in January and a February 2027 start.",
+      "first_seen": "2026-11-23",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Not-for-profit (sustainability)",
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Public affairs and campaigning training role",
+          "No experience required"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-westminster-forum-projects-policy-researcher",
+      "source": "Web search",
+      "title": "Policy Researcher / Editorial Research Assistant",
+      "company": "Westminster Forum Projects",
+      "location": "London / remote",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "",
+      "posted": "2026-11-05",
+      "closes": "2027-01-04",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100661",
+      "summary": "Westminster Forum Projects runs policy conferences that bring together government, industry and campaigners, and this role sits on its Food & Nutrition Forum. You would research and track government policy on food strategy, food poverty, sustainability, land use and trade to keep each conference timely and balanced. They set no formal requirements and ask applicants to explain their interest and relevant academic or work background. The post is permanent, with London or remote working, and the salary is described only as competitive.",
+      "first_seen": "2026-11-23",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Sustainability & social justice",
+          "Politics & public affairs"
+        ],
+        "pos": [
+          "Policy research role",
+          "No formal experience requirements"
+        ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-daniel-aldridge-mp-caseworker-weston-super-mare",
+      "source": "Web search",
+      "title": "Caseworker",
+      "company": "Daniel Aldridge MP (Weston-super-Mare)",
+      "location": "Weston-super-Mare (hybrid)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£28,000 – £29,500",
+      "posted": "2026-11-19",
+      "closes": "2026-12-07",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100785",
+      "summary": "This is the constituency office of the Labour MP for Weston-super-Mare. The caseworker handles constituents' problems on housing, benefits, immigration and public services, liaises with councils and government departments, and drafts letters and research for the MP. They want strong writing, research and analysis, sensitivity with people in difficulty, and sympathy with Labour's values. It is a permanent full-time-style post starting in January, with interviews on 11 and 16 December.",
+      "first_seen": "2026-11-23",
+      "fit": {
+        "total": 6,
+        "areas": [
+          "Politics & public affairs",
+          "Public sector"
+        ],
+        "pos": [
+          "Casework and policy research in an MP's office"
+        ],
+        "neg": [],
         "hidden": null,
         "show": true
       }
