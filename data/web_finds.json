@@ -1,33 +1,6 @@
 {
-  "updated": "2026-11-23T06:09:29Z",
+  "updated": "2026-11-26T06:09:28Z",
   "jobs": [
-    {
-      "id": "web-bbc-journalist-apprenticeship-l6-dunstable",
-      "source": "Web search",
-      "title": "Journalist Apprenticeship – Level 6 (BBC Three Counties Radio)",
-      "company": "BBC",
-      "location": "Dunstable, Bedfordshire (on-site)",
-      "country": "United Kingdom",
-      "abroad": false,
-      "salary_text": "£26,000 a year",
-      "posted": "2026-11-04",
-      "closes": "2026-11-24",
-      "url": "https://www.findapprenticeship.service.gov.uk/apprenticeship/VAC2000062222",
-      "summary": "The BBC is recruiting Level 6 journalist apprentices for a September 2027 start, and this place is based at BBC Three Counties Radio in Dunstable. It's a full-time, paid route into BBC News, where you'd learn to find, research, write and broadcast stories while working towards a degree-level journalism qualification. The listing doesn't ask for a degree, but a strong graduate with research and communication experience would stand out. Dunstable is just north of the London search area, about 40 minutes from London by train.",
-      "first_seen": "2026-11-12",
-      "fit": {
-        "total": 8,
-        "areas": [
-          "Journalism & communications"
-        ],
-        "pos": [
-          "Graduate-level training scheme"
-        ],
-        "neg": [],
-        "hidden": null,
-        "show": true
-      }
-    },
     {
       "id": "web-alex-mcintyre-mp-parliamentary-assistant",
       "source": "Web search",
@@ -49,34 +22,6 @@
         ],
         "pos": [
           "Research and briefing writing"
-        ],
-        "neg": [],
-        "hidden": null,
-        "show": true
-      }
-    },
-    {
-      "id": "web-damien-egan-mp-caseworker-bristol-ne",
-      "source": "Web search",
-      "title": "Caseworker",
-      "company": "Damien Egan MP (Bristol North East)",
-      "location": "Bristol North East (constituency office, in person)",
-      "country": "United Kingdom",
-      "abroad": false,
-      "salary_text": "",
-      "posted": "2026-11-10",
-      "closes": "2026-11-24",
-      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100718",
-      "summary": "Damien Egan is the Labour MP for Bristol North East and this is a permanent full-time post in his constituency office. The caseworker handles constituent enquiries on issues such as housing, immigration and benefits, corresponds with agencies, and supports surgeries, campaigns and events. They want strong written and verbal communication and a sympathetic manner, with advice or advocacy experience preferred. Salary follows IPSA guidelines, interviews are on 2 December, and applications go by email.",
-      "first_seen": "2026-11-12",
-      "fit": {
-        "total": 6,
-        "areas": [
-          "Politics & public affairs",
-          "Sustainability & social justice"
-        ],
-        "pos": [
-          "Casework on housing and immigration"
         ],
         "neg": [],
         "hidden": null,
@@ -162,35 +107,6 @@
         "pos": [
           "Policy analysis and briefings",
           "Client engagement"
-        ],
-        "neg": [],
-        "hidden": null,
-        "show": true
-      }
-    },
-    {
-      "id": "web-daisy-cooper-mp-caseworker-st-albans",
-      "source": "Web search",
-      "title": "Caseworker",
-      "company": "Daisy Cooper MP (St Albans)",
-      "location": "St Albans (some hybrid)",
-      "country": "United Kingdom",
-      "abroad": false,
-      "salary_text": "£28,000 – £32,000",
-      "posted": "2026-11-12",
-      "closes": "2026-11-26",
-      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100732",
-      "summary": "Daisy Cooper is the Liberal Democrat MP for St Albans and this is a permanent post in her constituency office. The caseworker manages constituents' cases on immigration, housing, welfare and public services, liaises with departments and councils, drafts correspondence and researches local and national issues. They want excellent written and verbal communication, research skills and sensitivity, with no set years of experience. Applications close at 1pm on 26 November by email with a CV and covering letter, and interviews are on 3 December.",
-      "first_seen": "2026-11-16",
-      "fit": {
-        "total": 6,
-        "areas": [
-          "Politics & public affairs",
-          "Sustainability & social justice"
-        ],
-        "pos": [
-          "Casework on housing and immigration",
-          "Research and correspondence"
         ],
         "neg": [],
         "hidden": null,
@@ -374,6 +290,33 @@
         "pos": [
           "Casework and policy research in an MP's office"
         ],
+        "neg": [],
+        "hidden": null,
+        "show": true
+      }
+    },
+    {
+      "id": "web-apcc-communications-public-affairs-assistant",
+      "source": "Web search",
+      "title": "Communications and Public Affairs Assistant",
+      "company": "Association of Police and Crime Commissioners (APCC)",
+      "location": "London (Westminster)",
+      "country": "United Kingdom",
+      "abroad": false,
+      "salary_text": "£29,197 – £35,037 plus London weighting",
+      "posted": "2026-11-23",
+      "closes": "2026-12-07",
+      "url": "http://www.w4mpjobs.org/JobDetails.aspx?jobid=100815",
+      "summary": "The APCC is the national membership body supporting Police and Crime Commissioners across England and Wales. The assistant helps with media work and campaigns, monitors and researches parliamentary activity, writes member and external communications, and helps organise events. They want an early-career communicator who writes clearly and can explain policy to different audiences, working under guidance from senior staff. It is a full-time fixed-term contract until 31 March 2028, based in Westminster, and applications go in by cover letter and CV by email.",
+      "first_seen": "2026-11-26",
+      "fit": {
+        "total": 7,
+        "areas": [
+          "Politics & public affairs",
+          "Journalism & communications",
+          "Public sector"
+        ],
+        "pos": [],
         "neg": [],
         "hidden": null,
         "show": true
